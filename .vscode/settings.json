@@ -49,6 +49,7 @@
     "clocale": "cpp",
     "numbers": "cpp",
     "__nullptr": "cpp",
-    "array": "cpp"
+    "array": "cpp",
+    "filesystem": "cpp"
   }
 }

@@ -60,17 +60,17 @@ int main(int argc, char **argv)
 
   const char *successMsg = "HTTP/1.1 200 OK\r\n\r\n";
   const char *errorMsg = "HTTP/1.1 404 Not Found\r\n\r\n";
-  const char *echoMsg;
 
   // Get URL's content
   char recvBuf[512];
   int urlLength = recv(client, recvBuf, sizeof(recvBuf), 0);
   std::string requestURL(recvBuf);
 
-  // Check for echo endpoint
+  // ENDPOINT CHECKER
   bool listenForEcho = requestURL.find("/echo/") != std::string::npos;
+  bool listenForUserAgent = requestURL.find("/user-agent") != std::string::npos;
 
-  if ((recvBuf[5] != ' ') && (!listenForEcho))
+  if ((recvBuf[5] != ' ') && (!listenForEcho) && (!listenForUserAgent))
   {
     send(client, errorMsg, strlen(errorMsg), 0);
     std::cout << "Client couldn't connect\n";
@@ -80,9 +80,8 @@ int main(int argc, char **argv)
 
   if (listenForEcho)
   {
-    // Extract echo endpoint's responsebody and its length
     std::string searchString = "/echo/";
-    size_t startPos = requestURL.find("/echo/");
+    size_t startPos = requestURL.find(searchString);
     startPos += searchString.length();
     size_t endPos = requestURL.find(' ', startPos);
 
@@ -95,10 +94,34 @@ int main(int argc, char **argv)
         << "Content-Length: " << contentLength << "\r\n\r\n"
         << responseBody;
 
-    std::string echoMsgStr = oss.str();
-    echoMsg = echoMsgStr.c_str();
+    std::string msgStr = oss.str();
+    const char *msg = msgStr.c_str();
 
-    send(client, echoMsg, strlen(echoMsg), 0);
+    send(client, msg, strlen(msg), 0);
+    std::cout << "Client connected\n";
+    close(server_fd);
+    return 1;
+  }
+  if (listenForUserAgent)
+  {
+    std::string searchString = "User-Agent: ";
+    size_t startPos = requestURL.find(searchString);
+    startPos += searchString.length();
+    size_t endPos = requestURL.find("\r\n", startPos);
+
+    std::string responseBody = (endPos != std::string::npos) ? requestURL.substr(startPos, endPos - startPos) : requestURL.substr(startPos);
+    int contentLength = responseBody.length();
+
+    std::ostringstream oss;
+    oss << "HTTP/1.1 200 OK\r\n"
+        << "Content-Type: text/plain\r\n"
+        << "Content-Length: " << contentLength << "\r\n\r\n"
+        << responseBody;
+
+    std::string msgStr = oss.str();
+    const char *msg = msgStr.c_str();
+
+    send(client, msg, strlen(msg), 0);
     std::cout << "Client connected\n";
     close(server_fd);
     return 1;
