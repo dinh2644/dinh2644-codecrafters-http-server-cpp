@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 
   int urlLength = recv(client, recvBuf, sizeof(recvBuf), 0);
 
-  if (urlLength > 77)
+  if (recvBuf[5] != ' ')
   {
     send(client, errorMsg, strlen(errorMsg), 0);
     close(server_fd);
