@@ -48,6 +48,7 @@
     "typeinfo": "cpp",
     "clocale": "cpp",
     "numbers": "cpp",
-    "__nullptr": "cpp"
+    "__nullptr": "cpp",
+    "array": "cpp"
   }
 }
