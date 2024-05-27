@@ -54,10 +54,24 @@ int main(int argc, char **argv)
 
   std::cout << "Waiting for a client to connect...\n";
 
+  // accept call is blokcing until a client connects to the server via server_fd
   int client = accept(server_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addr_len);
-  // connect(server_fd, (const sockaddr *)&server_addr, sizeof(server_addr));
 
   const char *successMsg = "HTTP/1.1 200 OK\r\n\r\n";
+  const char *errorMsg = "HTTP/1.1 404 Not Found\r\n\r\n";
+
+  char recvBuf[512];
+
+  int urlLength = recv(client, recvBuf, sizeof(recvBuf), 0);
+
+  if (urlLength > 77)
+  {
+    send(client, errorMsg, strlen(errorMsg), 0);
+    close(server_fd);
+    std::cout << "Client couldn't connect\n";
+    return 1;
+  }
+
   send(client, successMsg, strlen(successMsg), 0);
 
   std::cout << "Client connected\n";
