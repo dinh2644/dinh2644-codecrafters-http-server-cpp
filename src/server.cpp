@@ -55,14 +55,10 @@ int main(int argc, char **argv)
 
   std::cout << "Waiting for a client to connect...\n";
 
-  // CONCURRENT CONNECTIONS
-  int client;
-  pid_t childpid;
-
-  while (1)
+  // Accept call is blocking until a client connects to the server via server_fd
+  while (true)
   {
-    // Accept call is blocking until a client connects to the server via server_fd
-    client = accept(server_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addr_len);
+    int client = accept(server_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addr_len);
 
     const char *successMsg = "HTTP/1.1 200 OK\r\n\r\n";
     const char *errorMsg = "HTTP/1.1 404 Not Found\r\n\r\n";
@@ -76,6 +72,7 @@ int main(int argc, char **argv)
     bool listenForEcho = requestURL.find("/echo/") != std::string::npos;
     bool listenForUserAgent = requestURL.find("/user-agent") != std::string::npos;
 
+    // Send 404 on these conditions
     if ((recvBuf[5] != ' ') && (!listenForEcho) && (!listenForUserAgent))
     {
       send(client, errorMsg, strlen(errorMsg), 0);
@@ -108,6 +105,7 @@ int main(int argc, char **argv)
       close(server_fd);
       return 1;
     }
+
     if (listenForUserAgent)
     {
       std::string searchString = "User-Agent: ";
@@ -133,21 +131,23 @@ int main(int argc, char **argv)
       return 1;
     }
 
-    send(client, successMsg, strlen(successMsg), 0);
-    std::cout << "Client connected\n";
-
-    if ((childpid = fork()) == 0)
+    int bytesSent = 0;
+    int totalBytesSent = 0;
+    while (bytesSent < totalBytesSent)
     {
-
-      // Closing the server socket id
-      close(server_fd);
-      send(client, successMsg, strlen(successMsg), 0);
+      bytesSent = send(client, successMsg, strlen(successMsg), 0);
+      if (bytesSent < 0)
+      {
+        std::cout << "Could not send response" << "\n";
+      }
+      totalBytesSent += bytesSent;
     }
 
-    close(server_fd);
+    std::cout << "Client connected\n";
+    close(client);
   }
 
-  close(client);
+  close(server_fd);
 
   return 0;
 }
