@@ -50,6 +50,9 @@
     "numbers": "cpp",
     "__nullptr": "cpp",
     "array": "cpp",
-    "filesystem": "cpp"
+    "filesystem": "cpp",
+    "sstream": "cpp",
+    "thread": "cpp",
+    "__threading_support": "cpp"
   }
 }
