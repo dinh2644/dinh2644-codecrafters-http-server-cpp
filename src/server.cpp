@@ -55,81 +55,99 @@ int main(int argc, char **argv)
 
   std::cout << "Waiting for a client to connect...\n";
 
-  // accept call is blokcing until a client connects to the server via server_fd
-  int client = accept(server_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addr_len);
+  // CONCURRENT CONNECTIONS
+  int client;
+  pid_t childpid;
 
-  const char *successMsg = "HTTP/1.1 200 OK\r\n\r\n";
-  const char *errorMsg = "HTTP/1.1 404 Not Found\r\n\r\n";
-
-  // Get URL's content
-  char recvBuf[512];
-  int urlLength = recv(client, recvBuf, sizeof(recvBuf), 0);
-  std::string requestURL(recvBuf);
-
-  // ENDPOINT CHECKER
-  bool listenForEcho = requestURL.find("/echo/") != std::string::npos;
-  bool listenForUserAgent = requestURL.find("/user-agent") != std::string::npos;
-
-  if ((recvBuf[5] != ' ') && (!listenForEcho) && (!listenForUserAgent))
+  while (1)
   {
-    send(client, errorMsg, strlen(errorMsg), 0);
-    std::cout << "Client couldn't connect\n";
-    close(server_fd);
-    return 1;
-  }
+    // Accept call is blocking until a client connects to the server via server_fd
+    client = accept(server_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addr_len);
 
-  if (listenForEcho)
-  {
-    std::string searchString = "/echo/";
-    size_t startPos = requestURL.find(searchString);
-    startPos += searchString.length();
-    size_t endPos = requestURL.find(' ', startPos);
+    const char *successMsg = "HTTP/1.1 200 OK\r\n\r\n";
+    const char *errorMsg = "HTTP/1.1 404 Not Found\r\n\r\n";
 
-    std::string responseBody = (endPos != std::string::npos) ? requestURL.substr(startPos, endPos - startPos) : requestURL.substr(startPos);
-    int contentLength = responseBody.length();
+    // Get URL's content
+    char recvBuf[512];
+    int urlLength = recv(client, recvBuf, sizeof(recvBuf), 0);
+    std::string requestURL(recvBuf);
 
-    std::ostringstream oss;
-    oss << "HTTP/1.1 200 OK\r\n"
-        << "Content-Type: text/plain\r\n"
-        << "Content-Length: " << contentLength << "\r\n\r\n"
-        << responseBody;
+    // ENDPOINT CHECKER
+    bool listenForEcho = requestURL.find("/echo/") != std::string::npos;
+    bool listenForUserAgent = requestURL.find("/user-agent") != std::string::npos;
 
-    std::string msgStr = oss.str();
-    const char *msg = msgStr.c_str();
+    if ((recvBuf[5] != ' ') && (!listenForEcho) && (!listenForUserAgent))
+    {
+      send(client, errorMsg, strlen(errorMsg), 0);
+      std::cout << "Client couldn't connect\n";
+      close(server_fd);
+      return 1;
+    }
 
-    send(client, msg, strlen(msg), 0);
+    if (listenForEcho)
+    {
+      std::string searchString = "/echo/";
+      size_t startPos = requestURL.find(searchString);
+      startPos += searchString.length();
+      size_t endPos = requestURL.find(' ', startPos);
+
+      std::string responseBody = (endPos != std::string::npos) ? requestURL.substr(startPos, endPos - startPos) : requestURL.substr(startPos);
+      int contentLength = responseBody.length();
+
+      std::ostringstream oss;
+      oss << "HTTP/1.1 200 OK\r\n"
+          << "Content-Type: text/plain\r\n"
+          << "Content-Length: " << contentLength << "\r\n\r\n"
+          << responseBody;
+
+      std::string msgStr = oss.str();
+      const char *msg = msgStr.c_str();
+
+      send(client, msg, strlen(msg), 0);
+      std::cout << "Client connected\n";
+      close(server_fd);
+      return 1;
+    }
+    if (listenForUserAgent)
+    {
+      std::string searchString = "User-Agent: ";
+      size_t startPos = requestURL.find(searchString);
+      startPos += searchString.length();
+      size_t endPos = requestURL.find("\r\n", startPos);
+
+      std::string responseBody = (endPos != std::string::npos) ? requestURL.substr(startPos, endPos - startPos) : requestURL.substr(startPos);
+      int contentLength = responseBody.length();
+
+      std::ostringstream oss;
+      oss << "HTTP/1.1 200 OK\r\n"
+          << "Content-Type: text/plain\r\n"
+          << "Content-Length: " << contentLength << "\r\n\r\n"
+          << responseBody;
+
+      std::string msgStr = oss.str();
+      const char *msg = msgStr.c_str();
+
+      send(client, msg, strlen(msg), 0);
+      std::cout << "Client connected\n";
+      close(server_fd);
+      return 1;
+    }
+
+    send(client, successMsg, strlen(successMsg), 0);
     std::cout << "Client connected\n";
+
+    if ((childpid = fork()) == 0)
+    {
+
+      // Closing the server socket id
+      close(server_fd);
+      send(client, successMsg, strlen(successMsg), 0);
+    }
+
     close(server_fd);
-    return 1;
-  }
-  if (listenForUserAgent)
-  {
-    std::string searchString = "User-Agent: ";
-    size_t startPos = requestURL.find(searchString);
-    startPos += searchString.length();
-    size_t endPos = requestURL.find("\r\n", startPos);
-
-    std::string responseBody = (endPos != std::string::npos) ? requestURL.substr(startPos, endPos - startPos) : requestURL.substr(startPos);
-    int contentLength = responseBody.length();
-
-    std::ostringstream oss;
-    oss << "HTTP/1.1 200 OK\r\n"
-        << "Content-Type: text/plain\r\n"
-        << "Content-Length: " << contentLength << "\r\n\r\n"
-        << responseBody;
-
-    std::string msgStr = oss.str();
-    const char *msg = msgStr.c_str();
-
-    send(client, msg, strlen(msg), 0);
-    std::cout << "Client connected\n";
-    close(server_fd);
-    return 1;
   }
 
-  send(client, successMsg, strlen(successMsg), 0);
-  std::cout << "Client connected\n";
-  close(server_fd);
+  close(client);
 
   return 0;
 }
