@@ -44,7 +44,7 @@ int main(int argc, char **argv)
   }
 
   // MAKE SOCKET LISTEN (put connections in a queue of connection_backlog capacity) //
-  int connection_backlog = 5;
+  int connection_backlog = 3;
   if (listen(server_fd, connection_backlog) != 0)
   {
     std::cerr << "listen failed\n";
