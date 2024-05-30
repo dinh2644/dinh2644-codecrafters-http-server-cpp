@@ -76,15 +76,18 @@ int main(int argc, char **argv)
       // Get URL's content
       char recvBuf[512];
       int urlLength = recv(clientSocket, recvBuf, sizeof(recvBuf), 0);
-      std::string requestURL(recvBuf);
+      std::string httpRequest(recvBuf);
 
       // Endpoint checker
-      bool listenForEcho = requestURL.find("/echo/") != std::string::npos;
-      bool listenForUserAgent = requestURL.find("/user-agent") != std::string::npos;
-      bool listenForFiles = requestURL.find("/files/") != std::string::npos;
+      bool listenForEcho = httpRequest.find("/echo/") != std::string::npos;
+      bool listenForUserAgent = httpRequest.find("/user-agent") != std::string::npos;
+      bool listenForFiles = httpRequest.find("/files/") != std::string::npos;
+
+      // HTTP methods checker
+      bool listenForPost = httpRequest.find("POST") != std::string::npos;
 
       // Send 404 on these conditions
-      if ((recvBuf[5] != ' ') && (!listenForEcho) && (!listenForUserAgent) && (!listenForFiles))
+      if ((recvBuf[5] != ' ') && (!listenForEcho) && (!listenForUserAgent) && (!listenForFiles) && (listenForPost))
       {
         send(clientSocket, errorMsg, strlen(errorMsg), 0);
         std::cout << "Client couldn't connect\n";
@@ -92,10 +95,10 @@ int main(int argc, char **argv)
       else if (listenForEcho)
       {
         std::string searchString = "/echo/";
-        size_t startPos = requestURL.find(searchString);
+        size_t startPos = httpRequest.find(searchString);
         startPos += searchString.length();
-        size_t endPos = requestURL.find(' ', startPos);
-        std::string responseBody = (endPos != std::string::npos) ? requestURL.substr(startPos, endPos - startPos) : requestURL.substr(startPos);
+        size_t endPos = httpRequest.find(' ', startPos);
+        std::string responseBody = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
         int contentLength = responseBody.length();
         std::ostringstream oss;
         oss << "HTTP/1.1 200 OK\r\n"
@@ -112,10 +115,10 @@ int main(int argc, char **argv)
         if (argc > 2)
         {
           std::string searchString = "/files/";
-          size_t startPos = requestURL.find(searchString);
+          size_t startPos = httpRequest.find(searchString);
           startPos += searchString.length();
-          size_t endPos = requestURL.find(' ', startPos);
-          std::string responseBody = (endPos != std::string::npos) ? requestURL.substr(startPos, endPos - startPos) : requestURL.substr(startPos);
+          size_t endPos = httpRequest.find(' ', startPos);
+          std::string fileName = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
 
           // get path of file
           // Ensure argv[2] ends with a slash
@@ -127,7 +130,7 @@ int main(int argc, char **argv)
           }
 
           std::ifstream file;
-          file.open(basePath + responseBody);
+          file.open(basePath + fileName);
 
           if (file)
           {
@@ -165,10 +168,10 @@ int main(int argc, char **argv)
       else if (listenForUserAgent)
       {
         std::string searchString = "User-Agent: ";
-        size_t startPos = requestURL.find(searchString);
+        size_t startPos = httpRequest.find(searchString);
         startPos += searchString.length();
-        size_t endPos = requestURL.find("\r\n", startPos);
-        std::string responseBody = (endPos != std::string::npos) ? requestURL.substr(startPos, endPos - startPos) : requestURL.substr(startPos);
+        size_t endPos = httpRequest.find("\r\n", startPos);
+        std::string responseBody = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
         int contentLength = responseBody.length();
         std::ostringstream oss;
         oss << "HTTP/1.1 200 OK\r\n"
