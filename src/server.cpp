@@ -129,14 +129,30 @@ int main(int argc, char **argv)
             basePath += '/';
           }
 
-          std::ifstream file;
-          file.open(basePath + fileName);
+          // if HTTP method is POST
+          if (listenForPost)
+          {
 
-          if (file)
+            std::ofstream outputFile;
+            outputFile.open(basePath + fileName, std::ios::app);
+
+            if (outputFile.is_open())
+            {
+              std::string newData;
+              std::getline(std::cin, newData);
+              outputFile << newData << std::endl;
+              outputFile.close();
+            }
+          }
+
+          std::ifstream inputFile;
+          inputFile.open(basePath + fileName);
+
+          if (inputFile)
           {
             // get file's content size
             std::stringstream buffer;
-            buffer << file.rdbuf();
+            buffer << inputFile.rdbuf();
             std::string fileContent = buffer.str();
 
             std::ostringstream oss;
