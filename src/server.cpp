@@ -111,7 +111,7 @@ int main(int argc, char **argv)
       {
         if (argc > 2)
         {
-          std::string searchString = "/files/";
+          std::string searchString = "/files";
           size_t startPos = requestURL.find(searchString);
           startPos += searchString.length();
           size_t endPos = requestURL.find(' ', startPos);
