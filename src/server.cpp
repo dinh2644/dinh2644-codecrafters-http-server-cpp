@@ -121,6 +121,11 @@ int main(int argc, char **argv)
           // Ensure argv[2] ends with a slash
           std::string basePath = argv[2];
 
+          if (basePath.back() != '/')
+          {
+            basePath += '/';
+          }
+
           std::ifstream file;
           file.open(basePath + responseBody);
 
