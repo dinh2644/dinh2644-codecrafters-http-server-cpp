@@ -143,7 +143,7 @@ int main(int argc, char **argv)
               std::string searchString = "-d '";
               size_t startPos = httpRequest.find(searchString);
               startPos += searchString.length();
-              size_t endPos = httpRequest.find("\r\n", startPos);
+              size_t endPos = httpRequest.find("'", startPos);
               std::string fileContent = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
 
               outputFile << fileContent << std::endl;
