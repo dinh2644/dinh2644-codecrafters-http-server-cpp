@@ -140,6 +140,8 @@ int main(int argc, char **argv)
             // return 404
             // send(clientSocket, errorMsg, strlen(errorMsg), 0);
             std::cout << "File doesn't exist\n";
+            close(clientSocket);
+            exit(0);
           }
         }
         else
