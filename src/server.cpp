@@ -145,7 +145,7 @@ int main(int argc, char **argv)
               std::string fileContent = buffer.str();
 
               // std::getline(std::cin, fileContent);
-              outputFile << fileContent << std::endl;
+              outputFile << "FORTNITE" << std::endl;
               outputFile.close();
 
               std::ostringstream oss;
