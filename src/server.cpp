@@ -9,6 +9,20 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <fstream>
+#include <vector>
+
+std::vector<std::string> getWords(std::string s)
+{
+  std::vector<std::string> res;
+  int pos = 0;
+  while (pos < s.size())
+  {
+    pos = s.find("%20");
+    res.push_back(s.substr(0, pos));
+    s.erase(0, pos + 3); // 3 is the length of the delimiter, "%20"
+  }
+  return res;
+}
 
 int main(int argc, char **argv)
 {
@@ -140,10 +154,8 @@ int main(int argc, char **argv)
 
             if (outputFile.is_open())
             {
-              std::string delimiter = "\r\n";
-              std::string token = httpRequest.substr(4, httpRequest.find(delimiter));
-              std::cout << "HTTP REQUEST: " << httpRequest << "\n";
-              std::cout << "TOKEN: " << token << "\n";
+              std::vector<std::string> httpVect = getWords(httpRequest);
+              std::cout << "httpVect" << "\n";
 
               std::string fileContent = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
 
