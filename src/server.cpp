@@ -155,7 +155,10 @@ int main(int argc, char **argv)
             if (outputFile.is_open())
             {
               std::vector<std::string> httpVect = getWords(httpRequest);
-              std::cout << "httpVect" << "\n";
+              for (const auto &word : httpVect)
+              {
+                std::cout << word << std::endl;
+              }
 
               std::string fileContent = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
 
