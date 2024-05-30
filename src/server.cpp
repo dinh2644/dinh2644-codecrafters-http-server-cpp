@@ -155,7 +155,7 @@ int main(int argc, char **argv)
               std::vector<std::string> httpVect;
               splitHTTPRequest(httpRequest, httpVect);
 
-              std::cout << "AYO: " << httpVect[5] << "\n";
+              std::cout << "AYO: " << httpVect[4] << "\n";
 
               std::string fileContent = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
 
