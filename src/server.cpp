@@ -109,7 +109,7 @@ int main(int argc, char **argv)
       }
       else if (listenForFiles)
       {
-        if (argv[2])
+        if (argc > 2)
         {
           std::string searchString = "/files/";
           size_t startPos = requestURL.find(searchString);
@@ -119,10 +119,19 @@ int main(int argc, char **argv)
           int contentLength = responseBody.length();
 
           // get path of file
-          std::string fileToCheck = argv[2] + responseBody;
+          // Ensure argv[2] ends with a slash
+          std::string basePath = argv[2];
+          if (basePath.back() != '/')
+          {
+            basePath += '/';
+          }
+
+          std::string fileToCheck = basePath + responseBody;
           // check if file exists
           std::ifstream file;
+
           file.open(fileToCheck);
+
           if (file)
           {
             std::ostringstream oss;
@@ -138,11 +147,11 @@ int main(int argc, char **argv)
           else
           {
             // return 404
-            // send(clientSocket, errorMsg, strlen(errorMsg), 0);
+            send(clientSocket, errorMsg, strlen(errorMsg), 0);
             std::cout << "File doesn't exist\n";
-            close(clientSocket);
-            exit(0);
           }
+          close(clientSocket);
+          exit(0);
         }
         else
         {
