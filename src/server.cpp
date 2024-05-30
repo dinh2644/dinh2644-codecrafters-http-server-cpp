@@ -127,14 +127,15 @@ int main(int argc, char **argv)
 
           std::string fileToCheck = basePath + responseBody;
 
-          std::ifstream inputFile(fileToCheck);
+          std::ifstream file;
+          file.open(fileToCheck);
 
-          if (inputFile.is_open())
+          if (file)
           {
             // get file's content size
             std::string line;
             int fileSize;
-            while (getline(inputFile, line))
+            while (getline(file, line))
             {
               fileSize += line.length();
             }
