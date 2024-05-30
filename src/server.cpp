@@ -125,7 +125,7 @@ int main(int argc, char **argv)
             basePath += '/';
           }
 
-          std::string fileToCheck = basePath + responseBody + ".txt ";
+          std::string fileToCheck = basePath + responseBody;
 
           std::ifstream inputFile(fileToCheck);
 
