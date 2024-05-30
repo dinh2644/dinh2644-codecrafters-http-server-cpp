@@ -18,7 +18,7 @@ void splitHTTPRequest(std::string &s, std::vector<std::string> &httpVect)
   {
     pos = s.find("\r\n");
     httpVect.push_back(s.substr(0, pos));
-    // s.erase(0, pos + 2); // 3 is the length of the delimiter, "%20"
+    s.erase(0, pos + 4); // 3 is the length of the delimiter, "%20"
   }
 }
 
