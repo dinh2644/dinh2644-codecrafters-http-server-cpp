@@ -116,7 +116,6 @@ int main(int argc, char **argv)
           startPos += searchString.length();
           size_t endPos = requestURL.find(' ', startPos);
           std::string responseBody = (endPos != std::string::npos) ? requestURL.substr(startPos, endPos - startPos) : requestURL.substr(startPos);
-          int contentLength = responseBody.length();
 
           // get path of file
           // Ensure argv[2] ends with a slash
@@ -127,17 +126,18 @@ int main(int argc, char **argv)
           }
 
           std::string fileToCheck = basePath + responseBody;
-          // check if file exists
-          std::ifstream file;
 
-          file.open(fileToCheck);
+          std::ifstream inputFile(fileToCheck);
 
-          if (file)
+          if (inputFile.is_open())
           {
+            // get file's content length
+            int fileSize = inputFile.tellg();
+
             std::ostringstream oss;
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: application/octet-stream\r\n"
-                << "Content-Length: " << contentLength << "\r\n\r\n"
+                << "Content-Length: " << fileSize << "\r\n\r\n"
                 << responseBody;
             std::string msgStr = oss.str();
             const char *msg = msgStr.c_str();
