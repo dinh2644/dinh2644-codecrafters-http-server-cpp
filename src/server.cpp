@@ -139,12 +139,12 @@ int main(int argc, char **argv)
             if (outputFile.is_open())
             {
 
-              // get file's content size
+              // get file's content
               std::stringstream buffer;
               buffer << outputFile.rdbuf();
               std::string fileContent = buffer.str();
 
-              std::getline(std::cin, fileContent);
+              // std::getline(std::cin, fileContent);
               outputFile << fileContent << std::endl;
               outputFile.close();
 
