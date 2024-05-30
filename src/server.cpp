@@ -140,7 +140,7 @@ int main(int argc, char **argv)
 
             if (outputFile.is_open())
             {
-              std::cout << "HTTP MESSGE: " << httpRequest << std::endl;
+              std::cout << "HTTP MESSGE: " << httpRequest << "END OF MESSAGE" << std::endl;
               std::string searchString = "-d '";
               size_t startPos = httpRequest.find(searchString);
               startPos += searchString.length();
