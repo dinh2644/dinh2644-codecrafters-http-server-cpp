@@ -11,7 +11,7 @@
 #include <fstream>
 #include <vector>
 
-void splitHTTPRequest(std::string s, std::vector<std::string> httpVect)
+void splitHTTPRequest(std::string s, std::vector<std::string> &httpVect)
 {
   int pos = 0;
   while (pos < s.size())
