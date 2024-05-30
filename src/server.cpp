@@ -11,14 +11,14 @@
 #include <fstream>
 #include <vector>
 
-void splitHTTPRequest(std::string s, std::vector<std::string> &httpVect)
+void splitHTTPRequest(std::string &s, std::vector<std::string> &httpVect)
 {
   int pos = 0;
   while (pos < s.size())
   {
-    pos = s.find("%20");
+    pos = s.find("\r\n");
     httpVect.push_back(s.substr(0, pos));
-    s.erase(0, pos + 3); // 3 is the length of the delimiter, "%20"
+    s.erase(0, pos + 4); // 3 is the length of the delimiter, "%20"
   }
 }
 
