@@ -142,6 +142,7 @@ int main(int argc, char **argv)
             {
               std::string delimiter = "\r\n";
               std::string token = httpRequest.substr(4, httpRequest.find(delimiter));
+              std::cout << "HTTP REQUEST: " << httpRequest << "\n";
               std::cout << "TOKEN: " << token << "\n";
 
               std::string fileContent = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
