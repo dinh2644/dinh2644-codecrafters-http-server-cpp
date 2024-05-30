@@ -12,7 +12,6 @@
 
 int main(int argc, char **argv)
 {
-  std::cout << "arv[0]: " << argv[0] << " " << "argv[1]" << argv[1] << "\n";
   // CREATE SOCKET //
   int server_fd = socket(AF_INET, SOCK_STREAM, 0);
   if (server_fd < 0)
@@ -50,43 +49,42 @@ int main(int argc, char **argv)
   int client_addr_len = sizeof(client_addr);
   std::cout << "Waiting for a client to connect...\n";
 
+  // Child process id
+
+  // Client socket
+  int clientSocket;
   while (true)
   {
+    const char *successMsg = "HTTP/1.1 200 OK\r\n\r\n";
+    const char *errorMsg = "HTTP/1.1 404 Not Found\r\n\r\n";
     // ACCEPT ANY INCOMING CONNECTIONS //
     // Accept call is blocking until a client connects to the server via server_fd
     // Creates new socket with a connection thread
-    int clientSocket = accept(server_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addr_len);
-
-    const char *successMsg = "HTTP/1.1 200 OK\r\n\r\n";
-    const char *errorMsg = "HTTP/1.1 404 Not Found\r\n\r\n";
-
+    clientSocket = accept(server_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addr_len);
     // Error handling
     if (clientSocket < 0)
     {
-      std::cerr << "Failed to accept connection\n";
-      continue;
+      exit(1);
     }
-
     pid_t childpid = fork();
+
     // Concurrent Server Approach: call fork() each time a new client connects to server:
-    if (childpid == -1)
-    {
-      std::cerr << "Failed to fork\n";
-      close(clientSocket);
-      continue;
-    }
     if (childpid == 0)
     {
+      close(server_fd); // Close the listening socket in the child process
+
       // Get URL's content
       char recvBuf[512];
       int urlLength = recv(clientSocket, recvBuf, sizeof(recvBuf), 0);
       std::string requestURL(recvBuf);
+
       // Endpoint checker
       bool listenForEcho = requestURL.find("/echo/") != std::string::npos;
       bool listenForUserAgent = requestURL.find("/user-agent") != std::string::npos;
+      bool listenForFiles = requestURL.find("/files/") != std::string::npos;
 
       // Send 404 on these conditions
-      if ((recvBuf[5] != ' ') && (!listenForEcho) && (!listenForUserAgent))
+      if ((recvBuf[5] != ' ') && (!listenForEcho) && (!listenForUserAgent) && (!listenForFiles))
       {
         send(clientSocket, errorMsg, strlen(errorMsg), 0);
         std::cout << "Client couldn't connect\n";
@@ -108,6 +106,48 @@ int main(int argc, char **argv)
         const char *msg = msgStr.c_str();
         send(clientSocket, msg, strlen(msg), 0);
         std::cout << "Client connected on /echo\n";
+      }
+      else if (listenForFiles)
+      {
+        if (argv[2])
+        {
+          std::string searchString = "/files/";
+          size_t startPos = requestURL.find(searchString);
+          startPos += searchString.length();
+          size_t endPos = requestURL.find(' ', startPos);
+          std::string responseBody = (endPos != std::string::npos) ? requestURL.substr(startPos, endPos - startPos) : requestURL.substr(startPos);
+          int contentLength = responseBody.length();
+
+          // get path of file
+          std::string fileToCheck = argv[2] + responseBody;
+          // check if file exists
+          std::ifstream file;
+          file.open(fileToCheck);
+          if (file)
+          {
+            std::ostringstream oss;
+            oss << "HTTP/1.1 200 OK\r\n"
+                << "Content-Type: application/octet-stream\r\n"
+                << "Content-Length: " << contentLength << "\r\n\r\n"
+                << responseBody;
+            std::string msgStr = oss.str();
+            const char *msg = msgStr.c_str();
+            send(clientSocket, msg, strlen(msg), 0);
+            std::cout << "Client connected on /files\n";
+          }
+          else
+          {
+            // return 404
+            // send(clientSocket, errorMsg, strlen(errorMsg), 0);
+            std::cout << "File doesn't exist\n";
+          }
+        }
+        else
+        {
+          std::cout << "Directory path not provided" << std::endl;
+          close(clientSocket);
+          exit(0);
+        }
       }
       else if (listenForUserAgent)
       {
@@ -134,17 +174,18 @@ int main(int argc, char **argv)
         std::cout << "Client connected without endpoint\n";
       }
 
-      close(server_fd);
       close(clientSocket);
       exit(0);
     }
     else
     {
-      close(clientSocket);
+      close(clientSocket); // Close the connected socket in the parent process
     }
   }
 
   close(server_fd);
-  std::cout << "Server shutting down \n";
+  std::cout << "All connections done \n"
+            << std::endl;
+
   return 0;
 }
