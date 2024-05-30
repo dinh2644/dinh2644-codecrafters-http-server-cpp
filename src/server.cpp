@@ -138,39 +138,63 @@ int main(int argc, char **argv)
 
             if (outputFile.is_open())
             {
-              std::string newData;
-              std::getline(std::cin, newData);
-              outputFile << newData << std::endl;
+
+              // get file's content size
+              std::stringstream buffer;
+              buffer << outputFile.rdbuf();
+              std::string fileContent = buffer.str();
+
+              std::getline(std::cin, fileContent);
+              outputFile << fileContent << std::endl;
               outputFile.close();
+
+              std::ostringstream oss;
+              oss << "HTTP/1.1 201 Created\r\n"
+                  << "Content-Type: application/octet-stream\r\n"
+                  << "Content-Length: " << std::to_string(fileContent.length()) << "\r\n\r\n"
+                  << fileContent;
+              std::string msgStr = oss.str();
+              const char *msg = msgStr.c_str();
+              send(clientSocket, msg, strlen(msg), 0);
+              std::cout << "Client connected on /files\n";
             }
-          }
-
-          std::ifstream inputFile;
-          inputFile.open(basePath + fileName);
-
-          if (inputFile)
-          {
-            // get file's content size
-            std::stringstream buffer;
-            buffer << inputFile.rdbuf();
-            std::string fileContent = buffer.str();
-
-            std::ostringstream oss;
-            oss << "HTTP/1.1 200 OK\r\n"
-                << "Content-Type: application/octet-stream\r\n"
-                << "Content-Length: " << std::to_string(fileContent.length()) << "\r\n\r\n"
-                << fileContent;
-            std::string msgStr = oss.str();
-            const char *msg = msgStr.c_str();
-            send(clientSocket, msg, strlen(msg), 0);
-            std::cout << "Client connected on /files\n";
+            else
+            {
+              // return 404
+              send(clientSocket, errorMsg, strlen(errorMsg), 0);
+              std::cout << "File doesn't exist\n";
+            }
           }
           else
           {
-            // return 404
-            send(clientSocket, errorMsg, strlen(errorMsg), 0);
-            std::cout << "File doesn't exist\n";
+            std::ifstream inputFile;
+            inputFile.open(basePath + fileName);
+
+            if (inputFile)
+            {
+              // get file's content size
+              std::stringstream buffer;
+              buffer << inputFile.rdbuf();
+              std::string fileContent = buffer.str();
+
+              std::ostringstream oss;
+              oss << "HTTP/1.1 200 OK\r\n"
+                  << "Content-Type: application/octet-stream\r\n"
+                  << "Content-Length: " << std::to_string(fileContent.length()) << "\r\n\r\n"
+                  << fileContent;
+              std::string msgStr = oss.str();
+              const char *msg = msgStr.c_str();
+              send(clientSocket, msg, strlen(msg), 0);
+              std::cout << "Client connected on /files\n";
+            }
+            else
+            {
+              // return 404
+              send(clientSocket, errorMsg, strlen(errorMsg), 0);
+              std::cout << "File doesn't exist\n";
+            }
           }
+
           close(clientSocket);
           exit(0);
         }
