@@ -131,19 +131,18 @@ int main(int argc, char **argv)
 
           if (inputFile.is_open())
           {
-            // get content of file
+            // get file's content size
             std::string line;
             int fileSize;
             while (getline(inputFile, line))
             {
               fileSize += line.length();
             }
-            int contentLength = responseBody.length();
 
             std::ostringstream oss;
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: application/octet-stream\r\n"
-                << "Content-Length: " << contentLength << "\r\n\r\n"
+                << "Content-Length: " << fileSize << "\r\n\r\n"
                 << responseBody;
             std::string msgStr = oss.str();
             const char *msg = msgStr.c_str();
