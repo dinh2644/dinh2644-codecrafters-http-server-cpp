@@ -56,6 +56,7 @@
     "__threading_support": "cpp",
     "fstream": "cpp",
     "__locale": "cpp",
-    "__string": "cpp"
+    "__string": "cpp",
+    "ios": "cpp"
   }
 }

@@ -120,30 +120,21 @@ int main(int argc, char **argv)
           // get path of file
           // Ensure argv[2] ends with a slash
           std::string basePath = argv[2];
-          if (basePath.back() != '/')
-          {
-            basePath += '/';
-          }
-
-          std::string fileToCheck = basePath + responseBody;
 
           std::ifstream file;
-          file.open(fileToCheck);
+          file.open(basePath + responseBody);
 
           if (file)
           {
             // get file's content size
-            std::string line;
-            int fileSize;
-            while (getline(file, line))
-            {
-              fileSize += line.length();
-            }
+            std::stringstream buffer;
+            buffer << file.rdbuf();
+            std::string fileContent = buffer.str();
 
             std::ostringstream oss;
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: application/octet-stream\r\n"
-                << "Content-Length: " << fileSize << "\r\n\r\n"
+                << "Content-Length: " << std::to_string(fileContent.length()) << "\r\n\r\n"
                 << responseBody;
             std::string msgStr = oss.str();
             const char *msg = msgStr.c_str();
