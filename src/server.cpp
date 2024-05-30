@@ -140,13 +140,13 @@ int main(int argc, char **argv)
 
             if (outputFile.is_open())
             {
-              // get file's content
-              std::stringstream buffer;
-              buffer << inputFile.rdbuf();
-              std::string fileContent = buffer.str();
+              std::string searchString = "-d '";
+              size_t startPos = httpRequest.find(searchString);
+              startPos += searchString.length();
+              size_t endPos = httpRequest.find("\r\n", startPos);
+              std::string fileContent = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
 
-              // std::getline(std::cin, fileContent);
-              outputFile << fileContent << std::endl;
+              outputFile << "placeholder" << std::endl;
               outputFile.close();
 
               std::ostringstream oss;
