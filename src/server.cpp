@@ -146,7 +146,7 @@ int main(int argc, char **argv)
               size_t endPos = httpRequest.find("\r\n", startPos);
               std::string fileContent = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
 
-              outputFile << "placeholder" << std::endl;
+              outputFile << fileContent << std::endl;
               outputFile.close();
 
               std::ostringstream oss;
