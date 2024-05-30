@@ -11,17 +11,15 @@
 #include <fstream>
 #include <vector>
 
-std::vector<std::string> getWords(std::string s)
+void splitHTTPRequest(std::string s, std::vector<std::string> httpVect)
 {
-  std::vector<std::string> res;
   int pos = 0;
   while (pos < s.size())
   {
     pos = s.find("%20");
-    res.push_back(s.substr(0, pos));
+    httpVect.push_back(s.substr(0, pos));
     s.erase(0, pos + 3); // 3 is the length of the delimiter, "%20"
   }
-  return res;
 }
 
 int main(int argc, char **argv)
@@ -154,7 +152,8 @@ int main(int argc, char **argv)
 
             if (outputFile.is_open())
             {
-              std::vector<std::string> httpVect = getWords(httpRequest);
+              std::vector<std::string> httpVect;
+              splitHTTPRequest(httpRequest, httpVect);
 
               std::cout << "AYO: " << httpVect[5] << "\n";
 
