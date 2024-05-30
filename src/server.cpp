@@ -12,6 +12,7 @@
 
 int main(int argc, char **argv)
 {
+  std::cout << argv[0] << argv[1] << "\n";
   // CREATE SOCKET //
   int server_fd = socket(AF_INET, SOCK_STREAM, 0);
   if (server_fd < 0)
