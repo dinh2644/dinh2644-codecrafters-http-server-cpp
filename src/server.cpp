@@ -161,7 +161,7 @@ int main(int argc, char **argv)
               splitHTTPRequest(httpRequest, httpVect);
 
               std::string fileContent = httpRequest + ' ';
-              fileContent = httpRequest.substr(0, httpRequest.length() - 1);
+              fileContent = httpRequest.substr(0, httpRequest.length() - 2);
 
               std::cout << "fileContent: " << fileContent << "\n";
 
