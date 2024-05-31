@@ -94,6 +94,7 @@ int main(int argc, char **argv)
       char recvBuf[512];
       int urlLength = recv(clientSocket, recvBuf, sizeof(recvBuf), 0);
       std::string httpRequest(recvBuf);
+      httpRequest.pop_back();
 
       // Endpoint checker
       bool listenForEcho = httpRequest.find("/echo/") != std::string::npos;
