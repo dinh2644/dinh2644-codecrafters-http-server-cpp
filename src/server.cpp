@@ -33,35 +33,31 @@ std::string getRequestBody(std::string &s, std::vector<std::string> &httpVect)
   return result;
 }
 
-std::string compress_string(const std::string &str)
+std::string compress_string(const std::string &str, int compressionLevel)
 {
-  std::vector<char> buffer;
-  z_stream zs;
-  memset(&zs, 0, sizeof(zs));
-  if (deflateInit2(&zs, Z_BEST_COMPRESSION, Z_DEFLATED, 15 + 16, 8, Z_DEFAULT_STRATEGY) != Z_OK)
+  // Estimate the maximum compressed size and allocate a buffer
+  uLong sourceLen = str.size();
+  uLong destLen = compressBound(sourceLen);
+  std::vector<unsigned char> compressedData(destLen);
+  std::ostringstream result;
+  // Compress the string
+  int res = compress2(compressedData.data(),
+                      &destLen,
+                      reinterpret_cast<const Bytef *>(str.data()),
+                      sourceLen,
+                      compressionLevel);
+  if (res != Z_OK)
   {
-    throw(std::runtime_error("deflateInit2 failed"));
+    return "";
   }
-  zs.next_in = (Bytef *)str.data();
-  zs.avail_in = str.size();
-  int ret;
-  char outbuffer[32768];
-  do
+  // Resize the buffer to the actual compressed size
+  compressedData.resize(destLen);
+  result << std::hex << std::setfill('0');
+  for (const auto c : compressedData)
   {
-    zs.next_out = reinterpret_cast<Bytef *>(outbuffer);
-    zs.avail_out = sizeof(outbuffer);
-    ret = deflate(&zs, Z_FINISH);
-    if (buffer.size() < zs.total_out)
-    {
-      buffer.insert(buffer.end(), outbuffer, outbuffer + zs.total_out - buffer.size());
-    }
-  } while (ret == Z_OK);
-  deflateEnd(&zs);
-  if (ret != Z_STREAM_END)
-  {
-    throw(std::runtime_error("deflate failed"));
+    result << static_cast<int>(c);
   }
-  return std::string(buffer.begin(), buffer.end());
+  return result.str();
 }
 
 int main(int argc, char **argv)
