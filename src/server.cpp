@@ -147,7 +147,8 @@ int main(int argc, char **argv)
 
           std::ostringstream oss;
 
-          std::cout << "FORTNITE: " << compress_string(stringToBeCompressed) << "\n";
+          // std::cout << "FORTNITE: " << compress_string(stringToBeCompressed) << "\n";
+          std::cout << "GZIP PRESENT?: " << hasGzip << "\n";
 
           if (hasGzip)
           {
