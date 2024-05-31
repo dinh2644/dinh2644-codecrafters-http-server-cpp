@@ -10,6 +10,7 @@
 #include <netdb.h>
 #include <fstream>
 #include <vector>
+#include <zlib.h>
 
 std::string getRequestBody(std::string &s, std::vector<std::string> &httpVect)
 {
@@ -29,6 +30,35 @@ std::string getRequestBody(std::string &s, std::vector<std::string> &httpVect)
     result.pop_back(); // Remove the trailing newline character
   }
   return result;
+}
+
+std::string compress_string(const std::string &str, int compressionlevel = Z_BEST_COMPRESSION)
+{
+  z_stream zs;
+  memset(&zs, 0, sizeof(zs));
+  if (deflateInit2(&zs, compressionlevel, Z_DEFLATED, 31, 8, Z_DEFAULT_STRATEGY) != Z_OK)
+    throw(std::runtime_error("deflateInit failed while compressing."));
+  zs.next_in = (Bytef *)str.data();
+  zs.avail_in = str.size();
+  int ret;
+  char outbuffer[32768];
+  std::string outstring;
+  do
+  {
+    zs.next_out = reinterpret_cast<Bytef *>(outbuffer);
+    zs.avail_out = sizeof(outbuffer);
+    ret = deflate(&zs, Z_FINISH);
+    if (outstring.size() < zs.total_out)
+    {
+      outstring.append(outbuffer, zs.total_out - outstring.size());
+    }
+  } while (ret == Z_OK);
+  deflateEnd(&zs);
+  if (ret != Z_STREAM_END)
+  {
+    throw(std::runtime_error("Exception during zlib compression: " + std::to_string(ret)));
+  }
+  return outstring;
 }
 
 int main(int argc, char **argv)
@@ -119,31 +149,37 @@ int main(int argc, char **argv)
         if (listenForEncodingHeader)
         {
 
-          std::string searchString = "Accept-Encoding: ";
+          std::string searchString = "/echo/";
           size_t startPos = httpRequest.find(searchString);
           startPos += searchString.length();
-          size_t endPos = httpRequest.find("\r\n", startPos);
+          size_t endPos = httpRequest.find(' ', startPos);
           std::string responseBody = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
           int contentLength = responseBody.length();
 
           std::cout << "RESPONSE BODY: " << responseBody << "\n";
-          bool hasGzip = responseBody.find("gzip") != std::string::npos;
-          bool hasEncoding1 = responseBody.find("encoding-1") != std::string::npos;
-          bool hasEncoding2 = responseBody.find("encoding-2") != std::string::npos;
 
-          std::cout << "hasGzip: " << hasGzip << "\n";
-          std::cout << "hasEncoding1: " << hasEncoding1 << "\n";
-          std::cout << "hasEncoding2: " << hasEncoding2 << "\n";
+          std::string searchString1 = "Accept-Encoding: ";
+          size_t startPos1 = httpRequest.find(searchString);
+          startPos1 += searchString.length();
+          size_t endPos1 = httpRequest.find("\r\n", startPos);
+          std::string responseBody1 = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
+          int contentLength1 = responseBody.length();
+
+          bool hasGzip = responseBody1.find("gzip") != std::string::npos;
+          bool hasEncoding1 = responseBody1.find("encoding-1") != std::string::npos;
+          bool hasEncoding2 = responseBody1.find("encoding-2") != std::string::npos;
 
           std::ostringstream oss;
 
           if (hasGzip)
           {
+            // Compress
+
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << contentLength << "\r\n\r\n"
-                << responseBody;
+                << "Content-Length: " << contentLength1 << "\r\n\r\n"
+                << responseBody1;
           }
           else
           {
