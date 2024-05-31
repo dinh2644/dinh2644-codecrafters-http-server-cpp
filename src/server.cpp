@@ -130,10 +130,23 @@ int main(int argc, char **argv)
           std::cout << "RESPONSE BODY COUNT: " << contentLength << "\n";
 
           std::ostringstream oss;
-          oss << "HTTP/1.1 200 OK\r\n"
-              << "Content-Type: text/plain\r\n"
-              << "Content-Length: " << contentLength << "\r\n\r\n"
-              << responseBody;
+
+          if (contentLength != 4)
+          {
+            oss << "HTTP/1.1 200 OK\r\n"
+                << "Content-Type: text/plain\r\n"
+                << "Content-Length: " << contentLength << "\r\n\r\n"
+                << responseBody;
+          }
+          else
+          {
+            oss << "HTTP/1.1 200 OK\r\n"
+                << "Content-Encoding: gzip\r\n"
+                << "Content-Type: text/plain\r\n"
+                << "Content-Length: " << contentLength << "\r\n\r\n"
+                << responseBody;
+          }
+
           std::string msgStr = oss.str();
           const char *msg = msgStr.c_str();
           send(clientSocket, msg, strlen(msg), 0);
