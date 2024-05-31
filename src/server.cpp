@@ -155,6 +155,8 @@ int main(int argc, char **argv)
               std::vector<std::string> httpVect;
               splitHTTPRequest(httpRequest, httpVect);
 
+              std::string del = "\r\n";
+              std::cout << del.length() << "\n";
               for (int i = 0; i < httpVect.size(); i++)
               {
                 std::cout << "AYO: " << httpVect[i] << "\n";
