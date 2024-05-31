@@ -52,7 +52,7 @@ std::string compress_string(const std::string &str, int compressionLevel = Z_BES
   }
   // Resize the buffer to the actual compressed size
   compressedData.resize(destLen);
-  result << std::hex << std::setfill('0');
+  result << std::hex << fill('0');
   for (const auto c : compressedData)
   {
     result << static_cast<int>(c);
