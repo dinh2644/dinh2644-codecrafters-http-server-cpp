@@ -11,6 +11,7 @@
 #include <fstream>
 #include <vector>
 #include <zlib.h>
+#include <ios>
 
 std::string getRequestBody(std::string &s, std::vector<std::string> &httpVect)
 {
