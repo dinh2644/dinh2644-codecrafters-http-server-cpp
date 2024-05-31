@@ -45,6 +45,22 @@ std::string compress_string(const std::string &str, int compressionlevel = Z_BES
   return outstring;
 }
 
+ssize_t send_all(int sockfd, const void *buf, size_t len)
+{
+  size_t total = 0;
+  const char *data = static_cast<const char *>(buf);
+  while (total < len)
+  {
+    ssize_t bytes_sent = send(sockfd, data + total, len - total, 0);
+    if (bytes_sent == -1)
+    {
+      return -1; // An error occurred
+    }
+    total += bytes_sent;
+  }
+  return total;
+}
+
 std::string getRequestBody(std::string &s, std::vector<std::string> &httpVect)
 {
   std::ostringstream oss;
@@ -176,15 +192,37 @@ int main(int argc, char **argv)
           if (hasGzip)
           {
             std::string compressedString = compress_string(stringToBeCompressed);
-            int contentLength = compressedString.length();
+            int contentLength = compressedString.size();
 
             std::cout << "COMPRESSED LENGTH: " << contentLength << "\n";
 
+            std::ostringstream oss;
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << contentLength << "\r\n\r\n"
-                << compressedString;
+                << "Content-Length: " << contentLength << "\r\n\r\n";
+
+            std::string headers = oss.str();
+            const char *headersCStr = headers.c_str();
+
+            std::cout << "Sending headers:\n"
+                      << headers << std::endl;
+
+            // Send headers
+            if (send_all(clientSocket, headersCStr, headers.size()) == -1)
+            {
+              std::cerr << "Failed to send headers\n";
+              close(clientSocket);
+              exit(1);
+            }
+
+            // Send the compressed data
+            if (send_all(clientSocket, compressedString.data(), compressedString.size()) == -1)
+            {
+              std::cerr << "Failed to send compressed data\n";
+              close(clientSocket);
+              exit(1);
+            }
           }
           else
           {
@@ -192,12 +230,12 @@ int main(int argc, char **argv)
                 << "Content-Type: text/plain\r\n"
                 << "Content-Length: " << contentLength1 << "\r\n\r\n"
                 << responseBody1;
-          }
 
-          std::string msgStr = oss.str();
-          const char *msg = msgStr.c_str();
-          send(clientSocket, msg, strlen(msg), 0);
-          std::cout << "Client connected on /echo 1\n";
+            std::string msgStr = oss.str();
+            const char *msg = msgStr.c_str();
+            send(clientSocket, msg, strlen(msg), 0);
+            std::cout << "Client connected on /echo 1\n";
+          }
         }
         else
         {
