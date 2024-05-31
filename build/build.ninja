@@ -65,6 +65,7 @@ build CMakeFiles/server.dir/src/server.cpp.o: CXX_COMPILER__server_unscanned_Deb
 
 build server: CXX_EXECUTABLE_LINKER__server_Debug CMakeFiles/server.dir/src/server.cpp.o
   FLAGS = -g
+  LINK_LIBRARIES = -lz
   OBJECT_DIR = CMakeFiles/server.dir
   POST_BUILD = :
   PRE_LINK = :
