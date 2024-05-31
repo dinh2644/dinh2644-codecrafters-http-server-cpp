@@ -118,7 +118,21 @@ int main(int argc, char **argv)
         bool listenForEncodingHeader = httpRequest.find("Accept-Encoding: ") != std::string::npos;
         if (listenForEncodingHeader)
         {
-          send(clientSocket, successMsg, strlen(successMsg), 0);
+          std::string searchString = "Accept-Encoding: ";
+          size_t startPos = httpRequest.find(searchString);
+          startPos += searchString.length();
+          size_t endPos = httpRequest.find(' ', startPos);
+          std::string responseBody = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
+          int contentLength = responseBody.length();
+          std::ostringstream oss;
+          oss << "HTTP/1.1 200 OK\r\n"
+              << "Content-Encoding: gzip\r\n"
+              << "Content-Type: text/plain\r\n"
+              << "Content-Length: " << contentLength << "\r\n\r\n"
+              << responseBody;
+          std::string msgStr = oss.str();
+          const char *msg = msgStr.c_str();
+          send(clientSocket, msg, strlen(msg), 0);
           std::cout << "Client connected on /echo with encoding header\n";
         }
 
