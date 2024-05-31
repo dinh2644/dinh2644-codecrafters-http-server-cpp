@@ -121,7 +121,7 @@ int main(int argc, char **argv)
           std::string searchString = "Accept-Encoding: ";
           size_t startPos = httpRequest.find(searchString);
           startPos += searchString.length();
-          size_t endPos = httpRequest.find(' ', startPos);
+          size_t endPos = httpRequest.find('"', startPos);
           std::string responseBody = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
           int contentLength = responseBody.length();
 
