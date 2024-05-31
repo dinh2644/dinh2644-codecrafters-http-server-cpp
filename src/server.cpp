@@ -186,6 +186,7 @@ int main(int argc, char **argv)
           }
           else
           {
+            std::string outstring = compressString(stringToBeCompressed);
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: text/plain\r\n"
                 << "Content-Length: " << contentLength1 << "\r\n\r\n"
