@@ -33,7 +33,7 @@ std::string getRequestBody(std::string &s, std::vector<std::string> &httpVect)
   return result;
 }
 
-std::string compress_string(const std::string &str, int compressionLevel)
+std::string compress_string(const std::string &str, int compressionLevel = Z_BEST_COMPRESSION)
 {
   // Estimate the maximum compressed size and allocate a buffer
   uLong sourceLen = str.size();
