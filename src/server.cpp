@@ -161,8 +161,8 @@ int main(int argc, char **argv)
               splitHTTPRequest(httpRequest, httpVect);
 
               std::string fileContent = httpRequest;
-              fileContent.pop_back();
-              std::cout << "fileContent[lastElem]: " << fileContent[fileContent.length() - 1] << "\n";
+
+              std::cout << "fileContent: " << fileContent << "\n";
 
               outputFile
                   << fileContent << std::endl;
