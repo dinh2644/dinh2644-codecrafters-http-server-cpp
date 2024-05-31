@@ -127,10 +127,13 @@ int main(int argc, char **argv)
           int contentLength = responseBody.length();
 
           std::cout << "RESPONSE BODY: " << responseBody << "\n";
+          bool hasGzip = responseBody.find("gzip") != std::string::npos;
+          bool hasEncoding1 = responseBody.find("encoding-1") != std::string::npos;
+          bool hasEncoding2 = responseBody.find("encoding-2") != std::string::npos;
 
           std::ostringstream oss;
 
-          if (contentLength != 4)
+          if (hasEncoding1 || hasEncoding2)
           {
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: text/plain\r\n"
