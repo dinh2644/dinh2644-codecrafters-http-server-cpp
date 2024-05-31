@@ -34,7 +34,7 @@ std::string getRequestBody(std::string &s, std::vector<std::string> &httpVect)
   return result;
 }
 
-std::string compressString(const std::string &str)
+std::string compress_string(const std::string &str)
 {
   z_stream zs;
   std::string outstring;
