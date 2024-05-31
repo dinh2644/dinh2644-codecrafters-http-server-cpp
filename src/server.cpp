@@ -126,18 +126,19 @@ int main(int argc, char **argv)
           int contentLength = responseBody.length();
 
           std::ostringstream oss;
-          std::cout << "Response body: " << (responseBody == "invalid-encoding") << "\n";
-          if (responseBody == "invalid-encoding")
+          std::cout << "Response body: " << (responseBody == "invalid-encoding ") << "\n";
+          if (responseBody == "gzip")
           {
             oss << "HTTP/1.1 200 OK\r\n"
+                << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
                 << "Content-Length: " << contentLength << "\r\n\r\n"
                 << responseBody;
           }
           else
           {
+
             oss << "HTTP/1.1 200 OK\r\n"
-                << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
                 << "Content-Length: " << contentLength << "\r\n\r\n"
                 << responseBody;
