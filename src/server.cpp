@@ -21,10 +21,7 @@ void splitHTTPRequest(std::string &s, std::vector<std::string> &httpVect)
     s.erase(0, pos + 2);
   }
 
-  if (!s.empty() && s.back() == '\n')
-  {
-    s.pop_back(); // Remove the trailing newline character
-  }
+  s = s + " ";
 }
 
 int main(int argc, char **argv)
