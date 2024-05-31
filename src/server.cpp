@@ -108,7 +108,7 @@ int main(int argc, char **argv)
       bool listenForPost = httpRequest.find("POST") != std::string::npos;
 
       // Send 404 on these conditions
-      if ((recvBuf[5] != ' ') && (!listenForEcho) && (!listenForUserAgent) && (!listenForFiles) && (listenForPost))
+      if ((recvBuf[5] != ' ') && (!listenForEcho) && (!listenForUserAgent) && (!listenForFiles))
       {
         send(clientSocket, errorMsg, strlen(errorMsg), 0);
         std::cout << "Client couldn't connect\n";
