@@ -176,11 +176,13 @@ int main(int argc, char **argv)
           std::ostringstream oss;
           if (hasGzip)
           {
+            std::string compressedString = compress_string(stringToBeCompressed);
+
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << compress_string(stringToBeCompressed).length() << "\r\n\r\n"
-                << compress_string(stringToBeCompressed);
+                << "Content-Length: " << compressedString.length() << "\r\n\r\n"
+                << compressedString;
           }
           else
           {
