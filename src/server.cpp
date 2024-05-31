@@ -127,10 +127,7 @@ int main(int argc, char **argv)
 
           std::ostringstream oss;
           std::cout << "Response body: " << responseBody << "\n";
-          const char *responseBodyChar = responseBody.c_str();
-          bool isInvalidEncoding = strcmp(responseBodyChar, "invalid-encoding");
-          std::cout << "STRING EQUAL?: " << isInvalidEncoding << "\n";
-          if (isInvalidEncoding == 0)
+          if (responseBody == "invalid-encoding")
           {
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: text/plain\r\n"
