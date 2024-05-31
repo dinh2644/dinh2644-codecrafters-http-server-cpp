@@ -189,13 +189,13 @@ int main(int argc, char **argv)
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: text/plain\r\n"
                 << "Content-Length: " << contentLength1 << "\r\n\r\n"
-                << responseBody1;
+                << outstring;
           }
 
           std::string msgStr = oss.str();
           const char *msg = msgStr.c_str();
           send(clientSocket, msg, strlen(msg), 0);
-          std::cout << "Client connected on /user-agent\n";
+          std::cout << "Client connected on /echo\n";
         }
 
         std::string searchString = "/echo/";
