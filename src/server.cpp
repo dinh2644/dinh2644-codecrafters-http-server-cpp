@@ -157,14 +157,6 @@ int main(int argc, char **argv)
 
               std::string fileContent = httpRequest;
 
-              for (const auto &line : httpVect)
-              {
-                if (!line.empty())
-                {
-                  fileContent += line + "\nWTF";
-                }
-              }
-
               if (!fileContent.empty() && fileContent.back() == '\n')
               {
                 fileContent.pop_back();
