@@ -161,7 +161,7 @@ int main(int argc, char **argv)
               {
                 if (!line.empty())
                 {
-                  fileContent += line + "\n";
+                  fileContent += line + "\nWTF";
                 }
               }
 
