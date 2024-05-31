@@ -177,7 +177,13 @@ int main(int argc, char **argv)
           if (true)
           {
             std::string compressedString = compress_string(stringToBeCompressed);
-            std::cout << "COMPRESSED STRING: " << compressedString << "\n";
+
+            std::cout << "Compressed string size: " << compressedString.size() << "\n";
+            std::cout << "First 16 bytes of compressed string in hex: ";
+            for (size_t i = 0; i < 16 && i < compressedString.size(); ++i)
+            {
+              std::cout << std::hex << std::setw(2) << std::setfill('0') << (unsigned int)(unsigned char)compressedString[i] << " ";
+            }
 
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
