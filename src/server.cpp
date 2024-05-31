@@ -174,36 +174,27 @@ int main(int argc, char **argv)
 
           if (hasGzip)
           {
-            std::ostringstream oss;
-
             std::string compressedString = compress_string(stringToBeCompressed);
             int contentLength = compressedString.size();
 
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << contentLength << "\r\n\r\n"
+                << "Content-Length: " << 123 << "\r\n\r\n"
                 << compressedString;
-
-            std::string msgStr = oss.str();
-            const char *msg = msgStr.c_str();
-            send(clientSocket, msg, strlen(msg), 0);
-            std::cout << "Client connected on /echo 1\n";
           }
           else
           {
-            std::ostringstream oss;
-
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << contentLength1 << "\r\n\r\n"
+                << "Content-Length: " << 123 << "\r\n\r\n"
                 << responseBody1;
-
-            std::string msgStr = oss.str();
-            const char *msg = msgStr.c_str();
-            send(clientSocket, msg, strlen(msg), 0);
-            std::cout << "Client connected on /echo 1\n";
           }
+
+          std::string msgStr = oss.str();
+          const char *msg = msgStr.c_str();
+          send(clientSocket, msg, strlen(msg), 0);
+          std::cout << "Client connected on /echo 1\n";
         }
         else
         {
