@@ -166,7 +166,7 @@ int main(int argc, char **argv)
 
               std::string fileContent = loadContent;
 
-              outputFile << fileContent << std::endl;
+              outputFile << fileContent;
               outputFile.close();
 
               std::ostringstream oss;
@@ -175,7 +175,6 @@ int main(int argc, char **argv)
                   << "Content-Length: " << std::to_string(fileContent.length()) << "\r\n\r\n"
                   << fileContent;
               std::string msgStr = oss.str();
-              msgStr.pop_back();
               const char *msg = msgStr.c_str();
               send(clientSocket, msg, strlen(msg), 0);
               std::cout << "Client connected on /files\n";
