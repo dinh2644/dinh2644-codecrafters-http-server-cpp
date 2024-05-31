@@ -181,8 +181,8 @@ int main(int argc, char **argv)
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << 14 << "\r\n\r\n"
-                << compressedString;
+                << "Content-Length: " << compressedString.length() << "\r\n\r\n"
+                << "WTF";
           }
           else
           {
