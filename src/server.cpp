@@ -181,8 +181,8 @@ int main(int argc, char **argv)
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << outstring.length() << "\r\n\r\n"
-                << outstring.c_str();
+                << "Content-Length: " << outstring.size() << "\r\n\r\n"
+                << outstring;
           }
           else
           {
@@ -212,7 +212,7 @@ int main(int argc, char **argv)
         std::string msgStr = oss.str();
         const char *msg = msgStr.c_str();
         // send(clientSocket, msg, strlen(msg), 0);
-        std::cout << "Client connected on /echo 2\n";
+        // std::cout << "Client connected on /echo 2\n";
       }
       else if (listenForFiles)
       {
