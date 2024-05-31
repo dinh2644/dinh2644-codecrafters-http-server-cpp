@@ -182,21 +182,20 @@ int main(int argc, char **argv)
                 << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
                 << "Content-Length: " << outstring.length() << "\r\n\r\n"
-                << outstring;
+                << outstring.c_str();
           }
           else
           {
-            std::string outstring = compressString(stringToBeCompressed);
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: text/plain\r\n"
                 << "Content-Length: " << contentLength1 << "\r\n\r\n"
-                << outstring;
+                << responseBody1;
           }
 
           std::string msgStr = oss.str();
           const char *msg = msgStr.c_str();
           send(clientSocket, msg, strlen(msg), 0);
-          std::cout << "Client connected on /echo\n";
+          std::cout << "Client connected on /echo 1\n";
         }
 
         std::string searchString = "/echo/";
@@ -213,7 +212,7 @@ int main(int argc, char **argv)
         std::string msgStr = oss.str();
         const char *msg = msgStr.c_str();
         send(clientSocket, msg, strlen(msg), 0);
-        std::cout << "Client connected on /echo\n";
+        std::cout << "Client connected on /echo 2\n";
       }
       else if (listenForFiles)
       {
