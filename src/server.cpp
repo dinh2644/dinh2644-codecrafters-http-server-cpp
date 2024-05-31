@@ -20,10 +20,11 @@ void splitHTTPRequest(std::string &s, std::vector<std::string> &httpVect)
     httpVect.push_back(s.substr(0, pos));
     s.erase(0, pos + 2);
   }
-  if (!s.empty() && s[s.length() - 1] == '\n')
-  {
-    s.erase(s.length() - 1);
-  }
+  // if (!s.empty() && s[s.length() - 1] == '\n')
+  // {
+  //   s.erase(s.length() - 1);
+  // }
+  s[s.length() - 1] = '\0';
 }
 
 int main(int argc, char **argv)
