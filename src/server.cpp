@@ -118,7 +118,7 @@ int main(int argc, char **argv)
         bool listenForEncodingHeader = httpRequest.find("Accept-Encoding: ") != std::string::npos;
         if (listenForEncodingHeader)
         {
-          std::string searchString = "Accept-Encoding:";
+          std::string searchString = "Accept-Encoding: ";
           size_t startPos = httpRequest.find(searchString);
           startPos += searchString.length();
           size_t endPos = httpRequest.find(' ', startPos);
@@ -126,7 +126,7 @@ int main(int argc, char **argv)
           int contentLength = responseBody.length();
 
           std::ostringstream oss;
-          std::cout << "Response body: " << responseBody << "\n";
+          std::cout << "Response body: " << httpRequest << "\n";
           if (responseBody == "invalid-encoding")
           {
             oss << "HTTP/1.1 200 OK\r\n"
