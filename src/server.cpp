@@ -155,7 +155,8 @@ int main(int argc, char **argv)
               std::vector<std::string> httpVect;
               splitHTTPRequest(httpRequest, httpVect);
 
-              std::string fileContent = httpRequest.pop_back();
+              std::string fileContent = httpRequest;
+              fileContent.pop_back();
 
               outputFile << fileContent << std::endl;
               outputFile.close();
