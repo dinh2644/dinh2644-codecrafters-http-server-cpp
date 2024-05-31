@@ -162,18 +162,20 @@ int main(int argc, char **argv)
 
               std::string fileContent;
 
-              for (const auto &line : httpVect)
-              {
-                if (!line.empty())
-                {
-                  fileContent += line + "\n";
-                }
-              }
+              // for (const auto &line : httpVect)
+              // {
+              //   if (!line.empty())
+              //   {
+              //     fileContent += line + "\n";
+              //   }
+              // }
 
-              if (!fileContent.empty() && fileContent.back() == '\n')
-              {
-                fileContent.pop_back();
-              }
+              // if (!fileContent.empty() && fileContent.back() == '\n')
+              // {
+              //   fileContent.pop_back();
+              // }
+
+              std::cout << "httpVect: " << httpVect[4] << "\n";
 
               outputFile << fileContent << std::endl;
               outputFile.close();
