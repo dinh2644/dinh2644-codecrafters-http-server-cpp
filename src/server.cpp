@@ -160,9 +160,12 @@ int main(int argc, char **argv)
               std::vector<std::string> httpVect;
               splitHTTPRequest(httpRequest, httpVect);
 
-              std::string fileContent = httpRequest.c_str();
+              std::string fileContent = httpRequest;
+              fileContent.pop_back();
+              std::cout << "fileContent[lastElem]: " << fileContent[fileContent.length() - 1] << "\n";
 
-              outputFile << fileContent << std::endl;
+              outputFile
+                  << fileContent << std::endl;
               outputFile.close();
 
               std::ostringstream oss;
