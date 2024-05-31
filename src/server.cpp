@@ -16,15 +16,10 @@ void splitHTTPRequest(std::string &s, std::vector<std::string> &httpVect)
   int pos = 0;
   while ((pos = s.find("\r\n")) != std::string::npos)
   {
-    // pos = s.find("\r\n");
+    pos = s.find("\r\n");
     httpVect.push_back(s.substr(0, pos));
     s.erase(0, pos + 2);
   }
-  // if (!s.empty() && s[s.length() - 1] == '\n')
-  // {
-  //   s.erase(s.length() - 1);
-  // }
-  // s[s.length() - 1] = '\0';
 }
 
 int main(int argc, char **argv)
@@ -160,22 +155,20 @@ int main(int argc, char **argv)
               std::vector<std::string> httpVect;
               splitHTTPRequest(httpRequest, httpVect);
 
-              std::string fileContent;
+              std::string fileContent = httpRequest;
 
-              // for (const auto &line : httpVect)
-              // {
-              //   if (!line.empty())
-              //   {
-              //     fileContent += line + "\n";
-              //   }
-              // }
+              for (const auto &line : httpVect)
+              {
+                if (!line.empty())
+                {
+                  fileContent += line + "\n";
+                }
+              }
 
-              // if (!fileContent.empty() && fileContent.back() == '\n')
-              // {
-              //   fileContent.pop_back();
-              // }
-
-              std::cout << "httpVect: " << httpVect[4] << "\n";
+              if (!fileContent.empty() && fileContent.back() == '\n')
+              {
+                fileContent.pop_back();
+              }
 
               outputFile << fileContent << std::endl;
               outputFile.close();
