@@ -132,7 +132,7 @@ int main(int argc, char **argv)
           std::string stringToBeCompressed = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
           int contentLength = stringToBeCompressed.length();
 
-          std::cout << "RESPONSE BODY: " << stringToBeCompressed << "\n";
+          // std::cout << "RESPONSE BODY: " << stringToBeCompressed << "\n";
 
           std::string searchString1 = "Accept-Encoding: ";
           size_t startPos1 = httpRequest.find(searchString);
@@ -146,6 +146,8 @@ int main(int argc, char **argv)
           bool hasEncoding2 = responseBody1.find("encoding-2") != std::string::npos;
 
           std::ostringstream oss;
+
+          std::cout << "FORTNITE: " << compress_string(stringToBeCompressed) << "\n";
 
           if (hasGzip)
           {
