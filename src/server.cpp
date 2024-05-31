@@ -159,7 +159,7 @@ int main(int argc, char **argv)
           size_t endPos = httpRequest.find(' ', startPos);
           std::string stringToBeCompressed = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
 
-          std::string searchString1 = "Accept-Encoding:";
+          std::string searchString1 = "Accept-Encoding: ";
           size_t startPos1 = httpRequest.find(searchString1);
           startPos1 += searchString1.length();
           size_t endPos1 = httpRequest.find("\r\n", startPos1);
@@ -179,15 +179,16 @@ int main(int argc, char **argv)
 
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
-                << "Content-Type: text/plain\r\n"
-                << "Content-Length:" << contentLength << "\r\n\r\n"
+                << "Content-Type: text/plain\r\n";
+            oss << "Content-Length: " << compressedString.size() << "\r\n"
+                << "\r\n"
                 << compressedString;
           }
           else
           {
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length:" << contentLength1 << "\r\n\r\n"
+                << "Content-Length: " << contentLength1 << "\r\n\r\n"
                 << responseBody1;
           }
 
