@@ -160,13 +160,12 @@ int main(int argc, char **argv)
               std::vector<std::string> httpVect;
               splitHTTPRequest(httpRequest, httpVect);
 
-              std::string reversedRequest(httpRequest.rbegin(), httpRequest.rend());
-              std::string fileContent(reversedRequest.rbegin(), reversedRequest.rend());
+              std::string fileContent(httpRequest.rbegin(), httpRequest.rend());
+              // std::string fileContent(reversedRequest.rbegin(), reversedRequest.rend());
 
               std::cout << "fileContent: " << fileContent << "\n";
 
-              outputFile
-                  << fileContent << std::endl;
+              outputFile << fileContent << std::endl;
               outputFile.close();
 
               std::ostringstream oss;
