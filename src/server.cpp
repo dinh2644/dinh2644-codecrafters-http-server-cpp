@@ -34,14 +34,14 @@ std::string getRequestBody(std::string &s, std::vector<std::string> &httpVect)
   return result;
 }
 
-std::string compress_string(const std::string &str)
+std::string compressString(const std::string &str)
 {
-  std::vector<char> buffer;
   z_stream zs;
+  std::string outstring;
   memset(&zs, 0, sizeof(zs));
-  if (deflateInit2(&zs, Z_BEST_COMPRESSION, Z_DEFLATED, 15 + 16, 8, Z_DEFAULT_STRATEGY) != Z_OK)
+  if (deflateInit2(&zs, Z_BEST_COMPRESSION, Z_DEFLATED, 31, 8, Z_DEFAULT_STRATEGY) != Z_OK)
   {
-    throw(std::runtime_error("deflateInit2 failed"));
+    return outstring;
   }
   zs.next_in = (Bytef *)str.data();
   zs.avail_in = str.size();
@@ -52,17 +52,17 @@ std::string compress_string(const std::string &str)
     zs.next_out = reinterpret_cast<Bytef *>(outbuffer);
     zs.avail_out = sizeof(outbuffer);
     ret = deflate(&zs, Z_FINISH);
-    if (buffer.size() < zs.total_out)
+    if (outstring.size() < zs.total_out)
     {
-      buffer.insert(buffer.end(), outbuffer, outbuffer + zs.total_out - buffer.size());
+      outstring.append(outbuffer, zs.total_out - outstring.size());
     }
   } while (ret == Z_OK);
   deflateEnd(&zs);
   if (ret != Z_STREAM_END)
   {
-    throw(std::runtime_error("deflate failed"));
+    return "";
   }
-  return std::string(buffer.begin(), buffer.end());
+  return outstring;
 }
 
 int main(int argc, char **argv)
@@ -176,9 +176,6 @@ int main(int argc, char **argv)
           std::ostringstream oss;
           if (hasGzip)
           {
-            // Compress
-            // std::string compressedString = compress_string(stringToBeCompressed);
-            // int compressedStringLength = compress_string.length();
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
