@@ -7,6 +7,5 @@ set(SOURCE_FILES src/server.cpp)
 add_executable(server ${SOURCE_FILES})
 
 find_package(ZLIB REQUIRED)
-
 target_link_libraries(server PRIVATE ZLIB::ZLIB)
 target_link_libraries(server PRIVATE z)
