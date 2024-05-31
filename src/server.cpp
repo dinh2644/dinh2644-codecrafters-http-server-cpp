@@ -36,7 +36,7 @@ std::string getRequestBody(std::string &s, std::vector<std::string> &httpVect)
   return result;
 }
 
-std::string compressString(std::string str)
+std::string compress_string(std::string str)
 {
   z_stream zs;
   memset(&zs, 0, sizeof(zs));
