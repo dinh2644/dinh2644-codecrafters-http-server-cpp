@@ -107,6 +107,8 @@ int main(int argc, char **argv)
   // Client socket
   int clientSocket;
 
+  bool debugging = true;
+
   while (true)
   {
     const char *successMsg = "HTTP/1.1 200 OK\r\n\r\n";
@@ -115,6 +117,12 @@ int main(int argc, char **argv)
     // Accept call is blocking until a client connects to the server via server_fd
     // Creates new socket with a connection thread
     clientSocket = accept(server_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addr_len);
+
+    if (debugging)
+    {
+      break; // Exit the loop after the first request for debugging purposes
+    }
+
     // Error handling
     if (clientSocket < 0)
     {
@@ -164,7 +172,7 @@ int main(int argc, char **argv)
           startPos1 += searchString1.length();
           size_t endPos1 = httpRequest.find("\r\n", startPos1);
           std::string responseBody1 = (endPos1 != std::string::npos) ? httpRequest.substr(startPos1, endPos1 - startPos1) : httpRequest.substr(startPos1);
-          unsigned int contentLength1 = responseBody1.length();
+          int contentLength1 = responseBody1.length();
 
           bool hasGzip = responseBody1.find("gzip") != std::string::npos;
           bool hasEncoding1 = responseBody1.find("encoding-1") != std::string::npos;
@@ -175,25 +183,25 @@ int main(int argc, char **argv)
           if (hasGzip)
           {
             std::string compressedString = compress_string(stringToBeCompressed);
-            unsigned int contentLength = compressedString.length();
+            int contentLength = compressedString.length();
 
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << std::to_string(contentLength) << "\r\n\r\n"
+                << "Content-Length: " << contentLength << "\r\n\r\n"
                 << compressedString;
           }
           else
           {
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << std::to_string(contentLength1) << "\r\n\r\n"
+                << "Content-Length: " << contentLength1 << "\r\n\r\n"
                 << responseBody1;
           }
 
           std::string msgStr = oss.str();
           const char *msg = msgStr.c_str();
-          send(clientSocket, msg, strlen(msg), 0);
+          send(clientSocket, msg, 10, 0);
           std::cout << "Client connected on /echo 1\n";
         }
         else
