@@ -127,7 +127,6 @@ int main(int argc, char **argv)
           int contentLength = responseBody.length();
 
           std::cout << "RESPONSE BODY: " << responseBody << "\n";
-          std::cout << "RESPONSE BODY COUNT: " << contentLength << "\n";
 
           std::ostringstream oss;
 
