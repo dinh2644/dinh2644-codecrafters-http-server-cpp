@@ -36,6 +36,33 @@ std::string getRequestBody(std::string &s, std::vector<std::string> &httpVect)
   return result;
 }
 
+std::string compressString(std::string str)
+{
+  z_stream zs;
+  memset(&zs, 0, sizeof(zs));
+  if (deflateInit2(&zs, Z_BEST_COMPRESSION, Z_DEFLATED, 31, 8, Z_DEFAULT_STRATEGY) != Z_OK)
+  {
+    return "";
+  }
+  zs.next_in = (Bytef *)str.data();
+  zs.avail_in = str.size();
+  int ret;
+  char outbuffer[32768];
+  std::string outstring;
+  do
+  {
+    zs.next_out = reinterpret_cast<Bytef *>(outbuffer);
+    zs.avail_out = size_t(outbuffer);
+    ret = deflate(&zs, Z_FINISH);
+    if (outstring.size() < zs.total_out)
+      outstring.append(outbuffer, zs.total_out - outstring.size());
+  } while (ret == Z_OK);
+  deflateEnd(&zs);
+  if (ret != Z_STREAM_END)
+    return "";
+  return outstring;
+}
+
 int main(int argc, char **argv)
 {
   // CREATE SOCKET //
@@ -147,38 +174,7 @@ int main(int argc, char **argv)
 
           if (hasGzip)
           {
-            int compressionlevel = Z_BEST_COMPRESSION;
-            z_stream zs;
-            memset(&zs, 0, sizeof(zs));
-            if (deflateInit2(&zs, compressionlevel, Z_DEFLATED, 31, 8, Z_DEFAULT_STRATEGY) != Z_OK)
-              throw(std::runtime_error("deflateInit failed while compressing."));
-
-            zs.next_in = (Bytef *)stringToBeCompressed.data();
-            zs.avail_in = stringToBeCompressed.size();
-
-            int ret;
-            char outbuffer[32768];
-            std::string outstring;
-
-            do
-            {
-              zs.next_out = reinterpret_cast<Bytef *>(outbuffer);
-              zs.avail_out = sizeof(outbuffer);
-
-              ret = deflate(&zs, Z_FINISH);
-
-              if (outstring.size() < zs.total_out)
-              {
-                outstring.append(outbuffer, zs.total_out - outstring.size());
-              }
-            } while (ret == Z_OK);
-
-            deflateEnd(&zs);
-
-            if (ret != Z_STREAM_END)
-            {
-              throw(std::runtime_error("Exception during zlib compression: " + std::to_string(ret)));
-            }
+            std::string outstring = compressString(stringToBeCompressed);
 
             std::cout << "compressedString: " << outstring << "\n";
 
