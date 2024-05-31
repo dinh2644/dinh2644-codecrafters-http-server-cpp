@@ -1,4 +1,4 @@
-prefix=../1.3.1
+prefix=/home/tdinh3/http_server/codecrafters-http-server-cpp
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 sharedlibdir=${libdir}
