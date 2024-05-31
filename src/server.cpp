@@ -11,8 +11,9 @@
 #include <fstream>
 #include <vector>
 
-void splitHTTPRequest(std::string &s, std::vector<std::string> &httpVect)
+std::string splitHTTPRequest(std::string &s, std::vector<std::string> &httpVect)
 {
+  std::ostringstream oss;
   int pos = 0;
   while ((pos = s.find("\r\n")) != std::string::npos)
   {
@@ -21,7 +22,13 @@ void splitHTTPRequest(std::string &s, std::vector<std::string> &httpVect)
     s.erase(0, pos + 2);
   }
 
-  s = s + "Hello";
+  oss << s; // Add the remaining part of the string
+  std::string result = oss.str();
+  if (!result.empty() && result.back() == '\n')
+  {
+    result.pop_back(); // Remove the trailing newline character
+  }
+  return result;
 }
 
 int main(int argc, char **argv)
@@ -155,14 +162,9 @@ int main(int argc, char **argv)
             if (outputFile.is_open())
             {
               std::vector<std::string> httpVect;
-              splitHTTPRequest(httpRequest, httpVect);
+              std::string loadContent = splitHTTPRequest(httpRequest, httpVect);
 
-              std::string fileContent = httpRequest;
-
-              if (!fileContent.empty() && fileContent.back() == '\n')
-              {
-                fileContent.pop_back();
-              }
+              std::string fileContent = loadContent;
 
               outputFile << fileContent << std::endl;
               outputFile.close();
