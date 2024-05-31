@@ -126,7 +126,7 @@ int main(int argc, char **argv)
           int contentLength = responseBody.length();
 
           std::ostringstream oss;
-          std::cout << "Response body: " << httpRequest << "\n";
+          std::cout << "Response body: " << (responseBody == "invalid-encoding") << "\n";
           if (responseBody == "invalid-encoding")
           {
             oss << "HTTP/1.1 200 OK\r\n"
