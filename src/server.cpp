@@ -201,7 +201,7 @@ int main(int argc, char **argv)
 
           std::string msgStr = oss.str();
           const char *msg = msgStr.c_str();
-          send(clientSocket, msg, 10, 0);
+          send(clientSocket, msg, strlen(msg), 0);
           std::cout << "Client connected on /echo 1\n";
         }
         else
