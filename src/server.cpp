@@ -20,6 +20,13 @@ void splitHTTPRequest(std::string &s, std::vector<std::string> &httpVect)
     httpVect.push_back(s.substr(0, pos));
     s.erase(0, pos + 2);
   }
+  std::ostringstream oss;
+  oss << s; // Add the remaining part of the string
+  std::string result = oss.str();
+  if (!result.empty() && result.back() == '\n')
+  {
+    result.pop_back(); // Remove the trailing newline character
+  }
 }
 
 int main(int argc, char **argv)
