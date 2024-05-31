@@ -11,6 +11,7 @@
 #include <fstream>
 #include <vector>
 #include <zlib.h>
+#include "../1.3.1/include/zlib.h"
 #include <ios>
 #include <iomanip>
 #include <assert.h>
