@@ -172,7 +172,8 @@ int main(int argc, char **argv)
               std::ostringstream oss;
               oss << "HTTP/1.1 201 Created\r\n"
                   << "Content-Type: application/octet-stream\r\n"
-                  << "Content-Length: " << std::to_string(fileContent.length()) << "\r\n\r\n"
+                  << "Content-Length: " << std::to_string(fileContent.length()) << "\r\n"
+                  << "\r\n"
                   << fileContent;
               std::string msgStr = oss.str();
               const char *msg = msgStr.c_str();
