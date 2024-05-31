@@ -176,7 +176,7 @@ int main(int argc, char **argv)
           if (hasGzip)
           {
             std::string compressedString = compress_string(stringToBeCompressed);
-            int contentLength = compressedString.length();
+            int contentLength = compressedString.size();
 
             // std::cout << "compressedString: " << outstring << "\n";
 
