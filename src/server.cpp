@@ -135,10 +135,10 @@ int main(int argc, char **argv)
           // std::cout << "RESPONSE BODY: " << stringToBeCompressed << "\n";
 
           std::string searchString1 = "Accept-Encoding: ";
-          size_t startPos1 = httpRequest.find(searchString);
-          startPos1 += searchString.length();
-          size_t endPos1 = httpRequest.find("\r\n", startPos);
-          std::string responseBody1 = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
+          size_t startPos1 = httpRequest.find(searchString1);
+          startPos1 += searchString1.length();
+          size_t endPos1 = httpRequest.find("\r\n", startPos1);
+          std::string responseBody1 = (endPos1 != std::string::npos) ? httpRequest.substr(startPos1, endPos1 - startPos1) : httpRequest.substr(startPos1);
           int contentLength1 = responseBody1.length();
 
           bool hasGzip = responseBody1.find("gzip") != std::string::npos;
