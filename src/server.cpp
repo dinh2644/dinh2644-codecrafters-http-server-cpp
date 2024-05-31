@@ -158,6 +158,8 @@ int main(int argc, char **argv)
               std::cout << "httpVect[0]: " << httpVect[0] << "\n";
               std::cout << "httpVect[1]: " << httpVect[1] << "\n";
               std::cout << "httpVect[2]: " << httpVect[2] << "\n";
+              std::cout << "httpVect[3]: " << httpVect[3] << "\n";
+              std::cout << "httpVect[4]: " << httpVect[4] << "\n";
 
               std::string fileContent = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
 
