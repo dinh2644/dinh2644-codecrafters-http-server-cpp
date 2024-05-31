@@ -189,7 +189,7 @@ int main(int argc, char **argv)
           {
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << contentLength1 << "\r\n\r\n"
+                << "Content-Length: " << 25 << "\r\n\r\n"
                 << responseBody1;
           }
 
