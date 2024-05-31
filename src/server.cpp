@@ -183,7 +183,7 @@ int main(int argc, char **argv)
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << outstring.length() << "\r\n\r\n"
+                << "Content-Length: " << contentLength << "\r\n\r\n"
                 << outstring;
           }
           else
