@@ -24,7 +24,7 @@ void splitHTTPRequest(std::string &s, std::vector<std::string> &httpVect)
   // {
   //   s.erase(s.length() - 1);
   // }
-  s[s.length() - 1] = '\0';
+  // s[s.length() - 1] = '\0';
 }
 
 int main(int argc, char **argv)
@@ -94,7 +94,6 @@ int main(int argc, char **argv)
       char recvBuf[512];
       int urlLength = recv(clientSocket, recvBuf, sizeof(recvBuf), 0);
       std::string httpRequest(recvBuf);
-      httpRequest.pop_back();
 
       // Endpoint checker
       bool listenForEcho = httpRequest.find("/echo/") != std::string::npos;
@@ -161,7 +160,7 @@ int main(int argc, char **argv)
               std::vector<std::string> httpVect;
               splitHTTPRequest(httpRequest, httpVect);
 
-              std::string fileContent = httpRequest;
+              std::string fileContent = httpRequest.c_str();
 
               outputFile << fileContent << std::endl;
               outputFile.close();
