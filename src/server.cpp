@@ -180,14 +180,14 @@ int main(int argc, char **argv)
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << contentLength << "\r\n\r\n"
+                << "Content-Length: " << std::to_string(contentLength) << "\r\n\r\n"
                 << compressedString;
           }
           else
           {
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << contentLength1 << "\r\n\r\n"
+                << "Content-Length: " << std::to_string(contentLength1) << "\r\n\r\n"
                 << responseBody1;
           }
 
