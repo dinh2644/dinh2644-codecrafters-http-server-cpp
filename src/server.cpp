@@ -107,242 +107,235 @@ int main(int argc, char **argv)
   // Client socket
   int clientSocket;
 
-  bool debugging = true;
+  // while (true)
+  //{
+  const char *successMsg = "HTTP/1.1 200 OK\r\n\r\n";
+  const char *errorMsg = "HTTP/1.1 404 Not Found\r\n\r\n";
+  // ACCEPT ANY INCOMING CONNECTIONS //
+  // Accept call is blocking until a client connects to the server via server_fd
+  // Creates new socket with a connection thread
+  clientSocket = accept(server_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addr_len);
 
-  while (true)
+  // Error handling
+  if (clientSocket < 0)
   {
-    const char *successMsg = "HTTP/1.1 200 OK\r\n\r\n";
-    const char *errorMsg = "HTTP/1.1 404 Not Found\r\n\r\n";
-    // ACCEPT ANY INCOMING CONNECTIONS //
-    // Accept call is blocking until a client connects to the server via server_fd
-    // Creates new socket with a connection thread
-    clientSocket = accept(server_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addr_len);
+    exit(1);
+  }
+  // pid_t childpid = fork();
 
-    if (debugging)
+  // Concurrent Server Approach: call fork() each time a new client connects to server:
+  // if (childpid == 0)
+  //{
+  close(server_fd); // Close the listening socket in the child process
+
+  // Get URL's content
+  char recvBuf[512];
+  int urlLength = recv(clientSocket, recvBuf, sizeof(recvBuf), 0);
+  std::string httpRequest(recvBuf);
+
+  // Endpoint checker
+  bool listenForEcho = httpRequest.find("/echo/") != std::string::npos;
+  bool listenForUserAgent = httpRequest.find("/user-agent") != std::string::npos;
+  bool listenForFiles = httpRequest.find("/files/") != std::string::npos;
+
+  // HTTP methods checker
+  bool listenForPost = httpRequest.find("POST") != std::string::npos;
+
+  // Send 404 on these conditions
+  if ((recvBuf[5] != ' ') && (!listenForEcho) && (!listenForUserAgent) && (!listenForFiles))
+  {
+    send(clientSocket, errorMsg, strlen(errorMsg), 0);
+    std::cout << "Client couldn't connect\n";
+  }
+  else if (listenForEcho)
+  {
+
+    bool listenForEncodingHeader = httpRequest.find("Accept-Encoding: ") != std::string::npos;
+    if (listenForEncodingHeader)
     {
-      break; // Exit the loop after the first request for debugging purposes
-    }
 
-    // Error handling
-    if (clientSocket < 0)
-    {
-      exit(1);
-    }
-    pid_t childpid = fork();
+      std::string searchString = "/echo/";
+      size_t startPos = httpRequest.find(searchString);
+      startPos += searchString.length();
+      size_t endPos = httpRequest.find(' ', startPos);
+      std::string stringToBeCompressed = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
 
-    // Concurrent Server Approach: call fork() each time a new client connects to server:
-    if (childpid == 0)
-    {
-      close(server_fd); // Close the listening socket in the child process
+      std::string searchString1 = "Accept-Encoding: ";
+      size_t startPos1 = httpRequest.find(searchString1);
+      startPos1 += searchString1.length();
+      size_t endPos1 = httpRequest.find("\r\n", startPos1);
+      std::string responseBody1 = (endPos1 != std::string::npos) ? httpRequest.substr(startPos1, endPos1 - startPos1) : httpRequest.substr(startPos1);
+      int contentLength1 = responseBody1.length();
 
-      // Get URL's content
-      char recvBuf[512];
-      int urlLength = recv(clientSocket, recvBuf, sizeof(recvBuf), 0);
-      std::string httpRequest(recvBuf);
+      bool hasGzip = responseBody1.find("gzip") != std::string::npos;
+      bool hasEncoding1 = responseBody1.find("encoding-1") != std::string::npos;
+      bool hasEncoding2 = responseBody1.find("encoding-2") != std::string::npos;
 
-      // Endpoint checker
-      bool listenForEcho = httpRequest.find("/echo/") != std::string::npos;
-      bool listenForUserAgent = httpRequest.find("/user-agent") != std::string::npos;
-      bool listenForFiles = httpRequest.find("/files/") != std::string::npos;
+      std::ostringstream oss;
 
-      // HTTP methods checker
-      bool listenForPost = httpRequest.find("POST") != std::string::npos;
-
-      // Send 404 on these conditions
-      if ((recvBuf[5] != ' ') && (!listenForEcho) && (!listenForUserAgent) && (!listenForFiles))
+      if (hasGzip)
       {
-        send(clientSocket, errorMsg, strlen(errorMsg), 0);
-        std::cout << "Client couldn't connect\n";
-      }
-      else if (listenForEcho)
-      {
+        std::string compressedString = compress_string(stringToBeCompressed);
+        int contentLength = compressedString.length();
 
-        bool listenForEncodingHeader = httpRequest.find("Accept-Encoding: ") != std::string::npos;
-        if (listenForEncodingHeader)
-        {
-
-          std::string searchString = "/echo/";
-          size_t startPos = httpRequest.find(searchString);
-          startPos += searchString.length();
-          size_t endPos = httpRequest.find(' ', startPos);
-          std::string stringToBeCompressed = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
-
-          std::string searchString1 = "Accept-Encoding: ";
-          size_t startPos1 = httpRequest.find(searchString1);
-          startPos1 += searchString1.length();
-          size_t endPos1 = httpRequest.find("\r\n", startPos1);
-          std::string responseBody1 = (endPos1 != std::string::npos) ? httpRequest.substr(startPos1, endPos1 - startPos1) : httpRequest.substr(startPos1);
-          int contentLength1 = responseBody1.length();
-
-          bool hasGzip = responseBody1.find("gzip") != std::string::npos;
-          bool hasEncoding1 = responseBody1.find("encoding-1") != std::string::npos;
-          bool hasEncoding2 = responseBody1.find("encoding-2") != std::string::npos;
-
-          std::ostringstream oss;
-
-          if (hasGzip)
-          {
-            std::string compressedString = compress_string(stringToBeCompressed);
-            int contentLength = compressedString.length();
-
-            oss << "HTTP/1.1 200 OK\r\n"
-                << "Content-Encoding: gzip\r\n"
-                << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << contentLength << "\r\n\r\n"
-                << compressedString;
-          }
-          else
-          {
-            oss << "HTTP/1.1 200 OK\r\n"
-                << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << contentLength1 << "\r\n\r\n"
-                << responseBody1;
-          }
-
-          std::string msgStr = oss.str();
-          const char *msg = msgStr.c_str();
-          send(clientSocket, msg, strlen(msg), 0);
-          std::cout << "Client connected on /echo 1\n";
-        }
-        else
-        {
-          std::string searchString = "/echo/";
-          size_t startPos = httpRequest.find(searchString);
-          startPos += searchString.length();
-          size_t endPos = httpRequest.find(' ', startPos);
-          std::string responseBody = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
-          int contentLength = responseBody.length();
-          std::ostringstream oss;
-          oss << "HTTP/1.1 200 OK\r\n"
-              << "Content-Type: text/plain\r\n"
-              << "Content-Length: " << contentLength << "\r\n\r\n"
-              << responseBody;
-          std::string msgStr = oss.str();
-          const char *msg = msgStr.c_str();
-          send(clientSocket, msg, strlen(msg), 0);
-          std::cout << "Client connected on /echo 2\n";
-        }
-      }
-      else if (listenForFiles)
-      {
-        if (argc > 2)
-        {
-          std::string searchString = "/files/";
-          size_t startPos = httpRequest.find(searchString);
-          startPos += searchString.length();
-          size_t endPos = httpRequest.find(' ', startPos);
-          std::string fileName = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
-
-          // get path of file
-          // Ensure argv[2] ends with a slash
-          std::string basePath = argv[2];
-
-          if (basePath.back() != '/')
-          {
-            basePath += '/';
-          }
-
-          std::ifstream inputFile;
-          inputFile.open(basePath + fileName);
-
-          // if HTTP method is POST
-          if (listenForPost)
-          {
-            std::ofstream outputFile;
-            outputFile.open(basePath + fileName, std::ios::app);
-
-            if (outputFile.is_open())
-            {
-              std::vector<std::string> httpVect;
-              std::string fileContent = getRequestBody(httpRequest, httpVect);
-
-              outputFile << fileContent;
-              outputFile.close();
-
-              std::ostringstream oss;
-              oss << "HTTP/1.1 201 Created\r\n"
-                  << "Content-Type: application/octet-stream\r\n"
-                  << "Content-Length: " << std::to_string(fileContent.length()) << "\r\n\r\n"
-                  << fileContent;
-              std::string msgStr = oss.str();
-              const char *msg = msgStr.c_str();
-              send(clientSocket, msg, strlen(msg), 0);
-              std::cout << "Client connected on /files\n";
-            }
-            else
-            {
-              // return 404
-              send(clientSocket, errorMsg, strlen(errorMsg), 0);
-              std::cout << "File doesn't exist\n";
-            }
-          }
-
-          if (inputFile)
-          {
-            // get file's content size
-            std::stringstream buffer;
-            buffer << inputFile.rdbuf();
-            std::string fileContent = buffer.str();
-
-            std::ostringstream oss;
-            oss << "HTTP/1.1 200 OK\r\n"
-                << "Content-Type: application/octet-stream\r\n"
-                << "Content-Length: " << std::to_string(fileContent.length()) << "\r\n\r\n"
-                << fileContent;
-            std::string msgStr = oss.str();
-            const char *msg = msgStr.c_str();
-            send(clientSocket, msg, strlen(msg), 0);
-            std::cout << "Client connected on /files\n";
-          }
-          else
-          {
-            // return 404
-            send(clientSocket, errorMsg, strlen(errorMsg), 0);
-            std::cout << "File doesn't exist\n";
-          }
-          close(clientSocket);
-          exit(0);
-        }
-        else
-        {
-          std::cout << "Directory path not provided" << std::endl;
-          close(clientSocket);
-          exit(0);
-        }
-      }
-      else if (listenForUserAgent)
-      {
-        std::string searchString = "User-Agent: ";
-        size_t startPos = httpRequest.find(searchString);
-        startPos += searchString.length();
-        size_t endPos = httpRequest.find("\r\n", startPos);
-        std::string responseBody = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
-        int contentLength = responseBody.length();
-        std::ostringstream oss;
         oss << "HTTP/1.1 200 OK\r\n"
+            << "Content-Encoding: gzip\r\n"
             << "Content-Type: text/plain\r\n"
             << "Content-Length: " << contentLength << "\r\n\r\n"
-            << responseBody;
-        std::string msgStr = oss.str();
-        const char *msg = msgStr.c_str();
-        send(clientSocket, msg, strlen(msg), 0);
-        std::cout << "Client connected on /user-agent\n";
+            << compressedString;
       }
       else
       {
-        // If no endpoint, send normal 202 response
-        send(clientSocket, successMsg, strlen(successMsg), 0);
-        std::cout << "Client connected without endpoint\n";
+        oss << "HTTP/1.1 200 OK\r\n"
+            << "Content-Type: text/plain\r\n"
+            << "Content-Length: " << contentLength1 << "\r\n\r\n"
+            << responseBody1;
       }
 
+      std::string msgStr = oss.str();
+      const char *msg = msgStr.c_str();
+      send(clientSocket, msg, strlen(msg), 0);
+      std::cout << "Client connected on /echo 1\n";
+    }
+    else
+    {
+      std::string searchString = "/echo/";
+      size_t startPos = httpRequest.find(searchString);
+      startPos += searchString.length();
+      size_t endPos = httpRequest.find(' ', startPos);
+      std::string responseBody = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
+      int contentLength = responseBody.length();
+      std::ostringstream oss;
+      oss << "HTTP/1.1 200 OK\r\n"
+          << "Content-Type: text/plain\r\n"
+          << "Content-Length: " << contentLength << "\r\n\r\n"
+          << responseBody;
+      std::string msgStr = oss.str();
+      const char *msg = msgStr.c_str();
+      send(clientSocket, msg, strlen(msg), 0);
+      std::cout << "Client connected on /echo 2\n";
+    }
+  }
+  else if (listenForFiles)
+  {
+    if (argc > 2)
+    {
+      std::string searchString = "/files/";
+      size_t startPos = httpRequest.find(searchString);
+      startPos += searchString.length();
+      size_t endPos = httpRequest.find(' ', startPos);
+      std::string fileName = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
+
+      // get path of file
+      // Ensure argv[2] ends with a slash
+      std::string basePath = argv[2];
+
+      if (basePath.back() != '/')
+      {
+        basePath += '/';
+      }
+
+      std::ifstream inputFile;
+      inputFile.open(basePath + fileName);
+
+      // if HTTP method is POST
+      if (listenForPost)
+      {
+        std::ofstream outputFile;
+        outputFile.open(basePath + fileName, std::ios::app);
+
+        if (outputFile.is_open())
+        {
+          std::vector<std::string> httpVect;
+          std::string fileContent = getRequestBody(httpRequest, httpVect);
+
+          outputFile << fileContent;
+          outputFile.close();
+
+          std::ostringstream oss;
+          oss << "HTTP/1.1 201 Created\r\n"
+              << "Content-Type: application/octet-stream\r\n"
+              << "Content-Length: " << std::to_string(fileContent.length()) << "\r\n\r\n"
+              << fileContent;
+          std::string msgStr = oss.str();
+          const char *msg = msgStr.c_str();
+          send(clientSocket, msg, strlen(msg), 0);
+          std::cout << "Client connected on /files\n";
+        }
+        else
+        {
+          // return 404
+          send(clientSocket, errorMsg, strlen(errorMsg), 0);
+          std::cout << "File doesn't exist\n";
+        }
+      }
+
+      if (inputFile)
+      {
+        // get file's content size
+        std::stringstream buffer;
+        buffer << inputFile.rdbuf();
+        std::string fileContent = buffer.str();
+
+        std::ostringstream oss;
+        oss << "HTTP/1.1 200 OK\r\n"
+            << "Content-Type: application/octet-stream\r\n"
+            << "Content-Length: " << std::to_string(fileContent.length()) << "\r\n\r\n"
+            << fileContent;
+        std::string msgStr = oss.str();
+        const char *msg = msgStr.c_str();
+        send(clientSocket, msg, strlen(msg), 0);
+        std::cout << "Client connected on /files\n";
+      }
+      else
+      {
+        // return 404
+        send(clientSocket, errorMsg, strlen(errorMsg), 0);
+        std::cout << "File doesn't exist\n";
+      }
       close(clientSocket);
       exit(0);
     }
     else
     {
-      close(clientSocket); // Close the connected socket in the parent process
+      std::cout << "Directory path not provided" << std::endl;
+      close(clientSocket);
+      exit(0);
     }
   }
+  else if (listenForUserAgent)
+  {
+    std::string searchString = "User-Agent: ";
+    size_t startPos = httpRequest.find(searchString);
+    startPos += searchString.length();
+    size_t endPos = httpRequest.find("\r\n", startPos);
+    std::string responseBody = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
+    int contentLength = responseBody.length();
+    std::ostringstream oss;
+    oss << "HTTP/1.1 200 OK\r\n"
+        << "Content-Type: text/plain\r\n"
+        << "Content-Length: " << contentLength << "\r\n\r\n"
+        << responseBody;
+    std::string msgStr = oss.str();
+    const char *msg = msgStr.c_str();
+    send(clientSocket, msg, strlen(msg), 0);
+    std::cout << "Client connected on /user-agent\n";
+  }
+  else
+  {
+    // If no endpoint, send normal 202 response
+    send(clientSocket, successMsg, strlen(successMsg), 0);
+    std::cout << "Client connected without endpoint\n";
+  }
+
+  close(clientSocket);
+  exit(0);
+  //}
+  // else
+  // {
+  //   close(clientSocket); // Close the connected socket in the parent process
+  // }
+  //}
 
   close(server_fd);
   std::cout << "All connections done \n"
