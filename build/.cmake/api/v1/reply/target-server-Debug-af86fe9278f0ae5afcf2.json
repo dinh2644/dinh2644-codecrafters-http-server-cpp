@@ -75,7 +75,7 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "-lz",
+				"fragment" : "-lzlib",
 				"role" : "libraries"
 			}
 		],
