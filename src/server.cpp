@@ -153,17 +153,17 @@ int main(int argc, char **argv)
           size_t startPos = httpRequest.find(searchString);
           startPos += searchString.length();
           size_t endPos = httpRequest.find(' ', startPos);
-          std::string responseBody = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
-          int contentLength = responseBody.length();
+          std::string stringToBeCompressed = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
+          int contentLength = stringToBeCompressed.length();
 
-          std::cout << "RESPONSE BODY: " << responseBody << "\n";
+          // std::cout << "RESPONSE BODY: " << responseBody << "\n";
 
           std::string searchString1 = "Accept-Encoding: ";
           size_t startPos1 = httpRequest.find(searchString);
           startPos1 += searchString.length();
           size_t endPos1 = httpRequest.find("\r\n", startPos);
           std::string responseBody1 = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
-          int contentLength1 = responseBody.length();
+          int contentLength1 = responseBody1.length();
 
           bool hasGzip = responseBody1.find("gzip") != std::string::npos;
           bool hasEncoding1 = responseBody1.find("encoding-1") != std::string::npos;
@@ -174,19 +174,20 @@ int main(int argc, char **argv)
           if (hasGzip)
           {
             // Compress
-
+            std::string compressedString = compress_string(stringToBeCompressed);
+            int compressedStringLength = compressedString.length();
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << contentLength1 << "\r\n\r\n"
-                << responseBody1;
+                << "Content-Length: " << compressedStringLength << "\r\n\r\n"
+                << compressedString;
           }
           else
           {
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << contentLength << "\r\n\r\n"
-                << responseBody;
+                << "Content-Length: " << contentLength1 << "\r\n\r\n"
+                << responseBody1;
           }
 
           std::string msgStr = oss.str();
