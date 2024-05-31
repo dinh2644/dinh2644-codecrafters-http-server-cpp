@@ -177,7 +177,7 @@ int main(int argc, char **argv)
             std::string compressedString = compress_string(stringToBeCompressed);
             int contentLength = compressedString.size();
 
-            // std::cout << "compressedString: " << compressedString << "\n";
+            std::cout << "compressedString: " << compressedString << "\n";
 
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
