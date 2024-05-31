@@ -32,9 +32,35 @@ std::string getRequestBody(std::string &s, std::vector<std::string> &httpVect)
   return result;
 }
 
-std::string compress_string(const std::string &str, int compressionlevel = Z_BEST_COMPRESSION)
+std::string compress_string(const std::string &str)
 {
-  return "HELLO";
+  std::vector<char> buffer;
+  z_stream zs;
+  memset(&zs, 0, sizeof(zs));
+  if (deflateInit2(&zs, Z_BEST_COMPRESSION, Z_DEFLATED, 15 + 16, 8, Z_DEFAULT_STRATEGY) != Z_OK)
+  {
+    throw(std::runtime_error("deflateInit2 failed"));
+  }
+  zs.next_in = (Bytef *)str.data();
+  zs.avail_in = str.size();
+  int ret;
+  char outbuffer[32768];
+  do
+  {
+    zs.next_out = reinterpret_cast<Bytef *>(outbuffer);
+    zs.avail_out = sizeof(outbuffer);
+    ret = deflate(&zs, Z_FINISH);
+    if (buffer.size() < zs.total_out)
+    {
+      buffer.insert(buffer.end(), outbuffer, outbuffer + zs.total_out - buffer.size());
+    }
+  } while (ret == Z_OK);
+  deflateEnd(&zs);
+  if (ret != Z_STREAM_END)
+  {
+    throw(std::runtime_error("deflate failed"));
+  }
+  return std::string(buffer.begin(), buffer.end());
 }
 
 int main(int argc, char **argv)
@@ -146,10 +172,6 @@ int main(int argc, char **argv)
           bool hasEncoding2 = responseBody1.find("encoding-2") != std::string::npos;
 
           std::ostringstream oss;
-
-          // std::cout << "FORTNITE: " << compress_string(stringToBeCompressed) << "\n";
-          std::cout << "GZIP PRESENT?: " << hasGzip << "\n";
-
           if (hasGzip)
           {
             // Compress
