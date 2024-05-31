@@ -160,7 +160,7 @@ int main(int argc, char **argv)
               std::vector<std::string> httpVect;
               splitHTTPRequest(httpRequest, httpVect);
 
-              std::string fileContent(httpRequest.rbegin(), httpRequest.rend());
+              std::string fileContent(httpRequest.rend(), httpRequest.rbegin());
 
               std::cout << "fileContent: " << fileContent << "\n";
 
