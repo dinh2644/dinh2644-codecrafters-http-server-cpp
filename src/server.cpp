@@ -125,32 +125,31 @@ int main(int argc, char **argv)
           std::string responseBody = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
           int contentLength = responseBody.length();
 
+          std::ostringstream oss;
           std::cout << "Response body: " << responseBody << "\n";
-          if (responseBody == "invalid-encoding")
+          const char *responseBodyChar = responseBody.c_str();
+          bool isInvalidEncoding = strcmp(responseBodyChar, "invalid-encoding");
+          std::cout << "STRING EQUAL?: " << isInvalidEncoding << "\n";
+          if (isInvalidEncoding)
           {
-            std::ostringstream oss;
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Type: text/plain\r\n"
                 << "Content-Length: " << contentLength << "\r\n\r\n"
                 << responseBody;
-            std::string msgStr = oss.str();
-            const char *msg = msgStr.c_str();
-            send(clientSocket, msg, strlen(msg), 0);
-            std::cout << "Client connected on /echo with encoding header\n";
           }
           else
           {
-            std::ostringstream oss;
             oss << "HTTP/1.1 200 OK\r\n"
                 << "Content-Encoding: gzip\r\n"
                 << "Content-Type: text/plain\r\n"
                 << "Content-Length: " << contentLength << "\r\n\r\n"
                 << responseBody;
-            std::string msgStr = oss.str();
-            const char *msg = msgStr.c_str();
-            send(clientSocket, msg, strlen(msg), 0);
-            std::cout << "Client connected on /echo with encoding header\n";
           }
+
+          std::string msgStr = oss.str();
+          const char *msg = msgStr.c_str();
+          send(clientSocket, msg, strlen(msg), 0);
+          std::cout << "Client connected on /echo with encoding header\n";
         }
 
         std::string searchString = "/echo/";
