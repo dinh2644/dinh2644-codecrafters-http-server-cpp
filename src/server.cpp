@@ -20,6 +20,7 @@ void splitHTTPRequest(std::string &s, std::vector<std::string> &httpVect)
     httpVect.push_back(s.substr(0, pos));
     s.erase(0, pos + 2);
   }
+  s.pop_back();
 }
 
 int main(int argc, char **argv)
@@ -156,7 +157,6 @@ int main(int argc, char **argv)
               splitHTTPRequest(httpRequest, httpVect);
 
               std::string fileContent = httpRequest;
-              fileContent.pop_back();
 
               outputFile << fileContent << std::endl;
               outputFile.close();
