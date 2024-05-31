@@ -118,36 +118,26 @@ int main(int argc, char **argv)
         bool listenForEncodingHeader = httpRequest.find("Accept-Encoding: ") != std::string::npos;
         if (listenForEncodingHeader)
         {
+
           std::string searchString = "Accept-Encoding: ";
           size_t startPos = httpRequest.find(searchString);
           startPos += searchString.length();
-          size_t endPos = httpRequest.find('"', startPos);
+          size_t endPos = httpRequest.find("\r\n", startPos);
           std::string responseBody = (endPos != std::string::npos) ? httpRequest.substr(startPos, endPos - startPos) : httpRequest.substr(startPos);
           int contentLength = responseBody.length();
 
+          std::cout << "RESPONSE BODY: " << responseBody << "\n";
+          std::cout << "RESPONSE BODY COUNT: " << contentLength << "\n";
+
           std::ostringstream oss;
-          std::cout << "Response body: " << contentLength << "\n";
-          if (responseBody == "gzip")
-          {
-            oss << "HTTP/1.1 200 OK\r\n"
-                << "Content-Encoding: gzip\r\n"
-                << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << contentLength << "\r\n\r\n"
-                << responseBody;
-          }
-          else
-          {
-
-            oss << "HTTP/1.1 200 OK\r\n"
-                << "Content-Type: text/plain\r\n"
-                << "Content-Length: " << contentLength << "\r\n\r\n"
-                << responseBody;
-          }
-
+          oss << "HTTP/1.1 200 OK\r\n"
+              << "Content-Type: text/plain\r\n"
+              << "Content-Length: " << contentLength << "\r\n\r\n"
+              << responseBody;
           std::string msgStr = oss.str();
           const char *msg = msgStr.c_str();
           send(clientSocket, msg, strlen(msg), 0);
-          std::cout << "Client connected on /echo with encoding header\n";
+          std::cout << "Client connected on /user-agent\n";
         }
 
         std::string searchString = "/echo/";
