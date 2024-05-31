@@ -34,12 +34,14 @@ std::string getRequestBody(std::string &s, std::vector<std::string> &httpVect)
   return result;
 }
 
-std::string compress_string(const std::string &str, int compressionlevel = Z_BEST_COMPRESSION)
+std::string compress_string(std::string str)
 {
   z_stream zs;
   memset(&zs, 0, sizeof(zs));
-  if (deflateInit2(&zs, compressionlevel, Z_DEFLATED, 31, 8, Z_DEFAULT_STRATEGY) != Z_OK)
-    throw(std::runtime_error("deflateInit failed while compressing."));
+  if (deflateInit2(&zs, Z_BEST_COMPRESSION, Z_DEFLATED, 31, 8, Z_DEFAULT_STRATEGY) != Z_OK)
+  {
+    return "";
+  }
   zs.next_in = (Bytef *)str.data();
   zs.avail_in = str.size();
   int ret;
@@ -48,18 +50,14 @@ std::string compress_string(const std::string &str, int compressionlevel = Z_BES
   do
   {
     zs.next_out = reinterpret_cast<Bytef *>(outbuffer);
-    zs.avail_out = sizeof(outbuffer);
+    zs.avail_out = size_t(outbuffer);
     ret = deflate(&zs, Z_FINISH);
     if (outstring.size() < zs.total_out)
-    {
       outstring.append(outbuffer, zs.total_out - outstring.size());
-    }
   } while (ret == Z_OK);
   deflateEnd(&zs);
   if (ret != Z_STREAM_END)
-  {
-    throw(std::runtime_error("Exception during zlib compression: " + std::to_string(ret)));
-  }
+    return "";
   return outstring;
 }
 
