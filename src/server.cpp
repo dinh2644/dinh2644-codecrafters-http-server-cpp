@@ -131,6 +131,10 @@ int main(int argc, char **argv)
           bool hasEncoding1 = responseBody.find("encoding-1") != std::string::npos;
           bool hasEncoding2 = responseBody.find("encoding-2") != std::string::npos;
 
+          std::cout << "hasGzip: " << hasGzip << "\n";
+          std::cout << "hasEncoding1: " << hasEncoding1 << "\n";
+          std::cout << "hasEncoding2: " << hasEncoding2 << "\n";
+
           std::ostringstream oss;
 
           if (hasEncoding1 || hasEncoding2)
