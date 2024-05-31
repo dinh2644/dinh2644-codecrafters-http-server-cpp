@@ -127,7 +127,7 @@ int main(int argc, char **argv)
           int contentLength = responseBody.length();
 
           std::cout << "RESPONSE BODY: " << responseBody << "\n";
-          bool hasGzip = responseBody.find("gzip") != std::string::npos;
+          bool hasGzip = responseBody.find("gzipp") != std::string::npos;
           bool hasEncoding1 = responseBody.find("encoding-1") != std::string::npos;
           bool hasEncoding2 = responseBody.find("encoding-2") != std::string::npos;
 
