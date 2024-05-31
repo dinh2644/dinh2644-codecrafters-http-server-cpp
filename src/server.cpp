@@ -11,7 +11,7 @@
 #include <fstream>
 #include <vector>
 
-std::string splitHTTPRequest(std::string &s, std::vector<std::string> &httpVect)
+std::string getRequestBody(std::string &s, std::vector<std::string> &httpVect)
 {
   std::ostringstream oss;
   int pos = 0;
@@ -115,6 +115,13 @@ int main(int argc, char **argv)
       }
       else if (listenForEcho)
       {
+        bool listenForEncodingHeader = httpRequest.find("Accept-Encoding: ") != std::string::npos;
+        if (listenForEncodingHeader)
+        {
+          send(clientSocket, successMsg, strlen(successMsg), 0);
+          std::cout << "Client connected on /echo with encoding header\n";
+        }
+
         std::string searchString = "/echo/";
         size_t startPos = httpRequest.find(searchString);
         startPos += searchString.length();
@@ -162,9 +169,7 @@ int main(int argc, char **argv)
             if (outputFile.is_open())
             {
               std::vector<std::string> httpVect;
-              std::string loadContent = splitHTTPRequest(httpRequest, httpVect);
-
-              std::string fileContent = loadContent;
+              std::string fileContent = getRequestBody(httpRequest, httpVect);
 
               outputFile << fileContent;
               outputFile.close();
